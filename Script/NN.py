@@ -7,10 +7,10 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-batches = 914
+batches = 64
 
 # read file
-data_path = "../DATA/dev_set.csv"
+data_path = "../DATA/training_set.csv"
 data = pd.read_csv(data_path, header=None)
 print(data.shape)
 x = np.array(data.iloc[:, 1:11])
@@ -28,16 +28,17 @@ scaler.transform(x_test)
 
 # define and fit the final model
 model = Sequential()
-model.add(Dense(50, input_dim=10, activation='relu'))
-model.add(Dense(50, activation='relu'))
-model.add(Dense(50, activation='relu'))
-model.add(Dense(50, activation='relu'))
-model.add(Dense(50, activation='relu'))
+model.add(Dense(100, input_dim=10, activation='relu'))
+# model.add(Dense(50, activation='relu'))
+# model.add(Dense(50, activation='relu'))
+# model.add(Dense(50, activation='relu'))
+# model.add(Dense(50, activation='relu'))
 model.add(Dense(2, activation='linear'))
-mySGD = SGD(lr=0.0002, momentum=0.9, nesterov=False, decay=0)
+mySGD = SGD(lr=0.00001, momentum=0.9, nesterov=False, decay=0)
 model.compile(loss='mean_squared_error', optimizer=mySGD, metrics=['accuracy'])
 #model.compile(loss='mse', optimizer='rmsprop', metrics=['accuracy'])
-hist = model.fit(x_train, y_train, shuffle=True, epochs=5000, verbose=2, batch_size=batches, validation_data=(x_test, y_test))
+hist = model.fit(x_train, y_train, shuffle=True, epochs=3000
+                 , verbose=2, batch_size=batches, validation_data=(x_test, y_test) )
 
 print("Min loss:", min(hist.history['val_loss']))
 

@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+import NN2
 
 
 # read file
-data_path = "training_set.csv"
+data_path = "../DATA/training_set.csv"
 data = pd.read_csv(data_path, header=None)
 print(data.shape)
 x = np.array(data.iloc[:, 1:11])
@@ -19,7 +20,7 @@ scaler = StandardScaler()
 
 scaler.fit_transform(x)
 
-loss, mee = NN2.train(x, y, batch_size=914, lr=0.0001, n_layers=1, hidden_size=50, epochs=500, activation='relu')
+loss, mee = NN2.train_and_validation(x, y, batch_size=914, lr=0.0001, n_layers=1, hidden_size=50, epochs=500, activation='relu')
 
 print("MEE: ", mee)
 print("LOSS: ", loss)
