@@ -1,13 +1,19 @@
 import sklearn.preprocessing as sk_p
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 data_path = "../DATA/ML-CUP18-TR.csv"
 
 data = pd.read_csv(data_path, header=None, comment='#')
 
 # scale data
-normalized_data = pd.DataFrame(sk_p.scale(data))
+
+scaler = StandardScaler()
+
+data.iloc[:, 1:11] = scaler.fit_transform(data.iloc[:, 1:11])
+
+normalized_data = data
 
 print(normalized_data)
 print("STANDARD DEVIATION:")
@@ -15,7 +21,8 @@ print(np.std(normalized_data))
 print("MEAN:")
 print(np.mean(normalized_data))
 
-remove_n = 102
+remove_n = int(len(data.index)/10)
+print(remove_n)
 
 drop_ind = np.random.choice(normalized_data.index, remove_n, replace=False)
 
