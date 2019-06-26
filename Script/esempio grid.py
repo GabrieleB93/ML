@@ -5,7 +5,7 @@ from sklearn.model_selection import GridSearchCV, RepeatedKFold
 from keras.models import Sequential
 from sklearn.metrics import make_scorer
 from keras.layers import Dense
-from sklearn.metrics import log_loss
+from sklearn.metrics import log_loss, SCORERS
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD, Adam
 
@@ -49,26 +49,21 @@ model = KerasClassifier(build_fn=create_model, epochs=30, batch_size=914, verbos
 learn_rate = [0.001, 0.0001]
 momentum = [0.8, 0.9]
 units = [50, 100]
-optimizer = ['SGD', 'Adam']
+optimizer = ['SGD']
 param_grid = dict(learn_rate=learn_rate, momentum=momentum, units=units, optimizer=optimizer)
 # grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
 
 
 inner_cv = RepeatedKFold(n_splits=3, n_repeats=1, random_state=1337)
 
-score_params = {"sample_weight": sample_weight_frame}
-my_scorer = make_scorer(score_f,
-                        greater_is_better=False,
-                        needs_proba=True,
-                        needs_threshold=False,
-                        **score_params)
+
 
 grid = GridSearchCV(estimator=model,
-                    scoring=my_scorer,
+                    scoring='brier_score_loss',
                     cv=inner_cv,
                     param_grid=param_grid,
-                    refit=True,
-                    return_train_score=False,
+                    refit=False,
+                    return_train_score=True,
                     iid=False)
 
 grid_result = grid.fit(X, Y)
