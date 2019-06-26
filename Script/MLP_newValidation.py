@@ -1,5 +1,6 @@
 import pandas as pd
 from os.path import exists
+from os import makedirs
 from utils import *
 import matplotlib.pyplot as plt
 
@@ -16,7 +17,7 @@ def main():
         batch = int(best_row.iloc[0]['batch_size'])
         n_layers = int(best_row.iloc[0]['n_layers'])
         learning_rate = best_row.iloc[0]['learning_rate']
-
+        #
         X, Y = getTrainData()
         model = create_model(learning_rate, hidden_layers_units, n_layers)
         history = model.fit(X, Y, shuffle=True, epochs=epochs, verbose=2, batch_size=batch, validation_split=0.2)
@@ -29,6 +30,11 @@ def main():
         plt.legend(loc='upper right')
         plt.show()
 
+        directory = "../Image/"
+        file = "Eta" + str(learning_rate) + "1" + ".png"
+        if not exists(directory):
+            makedirs(directory)
+        plt.savefig(directory + file)
 
 
 

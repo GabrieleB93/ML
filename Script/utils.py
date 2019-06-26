@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from keras import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
 
 
@@ -18,9 +18,11 @@ def getTrainData():
 def create_model(learn_rate=0.01, units=100, level=1):
     # create model
     model = Sequential()
+    model.add(Dropout(0.2,input_shape=(10,)))
     model.add(Dense(units=units, input_dim=10, activation='relu'))
 
     for l in range(level - 1):
+        model.add(Dropout(0.2))
         model.add(Dense(units=units, input_dim=10, activation='relu'))
 
     model.add(Dense(2, activation='linear'))
