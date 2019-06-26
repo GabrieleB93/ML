@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 import NN2
 
 # read file
@@ -43,7 +44,22 @@ for batch_size in batches:
                 print("RESULTS - MEE: ", mee, " Validation loss: ", loss)
 
 print(results_records)
+
+
+fig, ax = plt.subplots()
+# hide axes
+fig.patch.set_visible(False)
+ax.axis('off')
+ax.axis('tight')
+
 results = pd.DataFrame(data=results_records)
+colL = ("n_layers", 'hidden_layers_size', 'batch_size', 'learning_rate', 'validation_loss', 'mee')
+
+ax.table(cellText=results.values, colLabels=colL, loc='center')
+
+fig.tight_layout()
+
+plt.show()
 
 filepath = "../DATA/grid_search_result_MPL"
 file = open(filepath, mode='w')
