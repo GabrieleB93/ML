@@ -19,10 +19,16 @@ scaler = StandardScaler()
 
 scaler.fit_transform(x)
 
-batches = [64, 914]
-learning_rates = [0.001, 0.0002, 0.0001]
-layers = [1, 3, 5]
-layer_size = [100, 500]
+# batches = [64, 914]
+# learning_rates = [0.001, 0.0002, 0.0001]
+# layers = [1, 3, 5]
+# layer_size = [100, 500]
+# n_epochs = 5000
+
+batches = [914]
+learning_rates = [0.0001]
+layers = [1]
+layer_size = [100]
 n_epochs = 5000
 
 
