@@ -14,6 +14,7 @@ epochs = 5000
 def main():
     X, Y = getTrainData()
     batch_size = [X.shape[0], 64]
+    print(X.shape[0])
 
     # create model
     model = KerasRegressor(build_fn=create_model, epochs=epochs, verbose=2)

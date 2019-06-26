@@ -1,22 +1,17 @@
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import SGD
-from sklearn.model_selection import RepeatedKFold
+from sklearn.model_selection import RepeatedKFold, cross_val_score
+from keras.wrappers.scikit_learn import KerasRegressor
+
 import numpy as np
 import utils
-
-batches = [64, 914]
-learning_rates = [0.001, 0.0002, 0.0001]
-layers = [1, 3, 5]
-layer_size = [100, 500]
-n_epochs = 5000
 
 val_losses = []
 mees = []
 
 
 def crossValidation(X, Y, model, epochs, batch_size, rkfold):
-
     for tr_index, ts_index in rkfold.split(X, Y):
         x_train, x_test = X[tr_index], X[ts_index]
         y_train, y_test = Y[tr_index], Y[ts_index]
@@ -31,6 +26,12 @@ def crossValidation(X, Y, model, epochs, batch_size, rkfold):
         mees.append(mee)
         # print("MEE: ", mee)
 
+    # all_accur = cross_val_score(model, X, Y, cv=3)
+    # all_accur = cross_val_score(KerasClassifier(build_fn=create_model,lr,n_layers_hidden_size,activation), X, Y, cv=3)
+
+    print("COSEEEE")
+    # print(all_accur)
+
     mean_val_loss = np.mean(val_losses)
     mean_mee = np.mean(mees)
 
@@ -38,7 +39,6 @@ def crossValidation(X, Y, model, epochs, batch_size, rkfold):
 
 
 def create_model(lr, n_layers, hidden_size, activation):
-
     model = Sequential()
     model.add(Dense(hidden_size, input_dim=10, activation=activation))
     for i in range(n_layers - 1):
@@ -51,8 +51,9 @@ def create_model(lr, n_layers, hidden_size, activation):
 
 
 def train_and_validation(X, Y, batch_size=914, lr=0.001, n_layers=5, hidden_size=100, epochs=5000, activation='relu'):
-
     model = create_model(lr, n_layers, hidden_size, activation)
     rkfold = RepeatedKFold(n_splits=3, n_repeats=1, random_state=1343)
 
-    return crossValidation(X, Y, model, epochs, batch_size, rkfold)
+    return crossValidation(X, Y,
+                           KerasRegressor(build_fn=create_model, lr=lr, n_layers=n_layers, hidden_size=hidden_size,
+                                           activation=activation), epochs, batch_size, rkfold)

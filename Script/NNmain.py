@@ -23,7 +23,7 @@ batches = [64, 914]
 learning_rates = [0.001, 0.0002, 0.0001]
 layers = [1, 3, 5]
 layer_size = [100, 500]
-n_epochs = 5000
+n_epochs = 1
 
 
 results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [], 'validation_loss': [], 'mee': []}
