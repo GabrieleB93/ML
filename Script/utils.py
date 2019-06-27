@@ -18,7 +18,7 @@ def getTrainData():
 def create_model(learn_rate=0.01, units=100, level=1):
     # create model
     model = Sequential()
-    model.add(Dropout(0.2,input_shape=(10,)))
+    model.add(Dropout(0.2, input_shape=(10,)))
     model.add(Dense(units=units, input_dim=10, activation='relu'))
 
     for l in range(level - 1):
@@ -34,25 +34,37 @@ def create_model(learn_rate=0.01, units=100, level=1):
     return model
 
 
-def print_and_saveGrid(grid_result):
+def print_and_saveGrid(grid_result, firstScore, secondScore, save, nameResult=None, Type = None ):
     # summarize results
     # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
 
-    meanTrainLoss = grid_result.cv_results_['mean_train_loss']
-    meanTestLoss = grid_result.cv_results_['mean_test_loss']
-    meanTrainMee = grid_result.cv_results_['mean_train_mee']
-    meanTestMee = grid_result.cv_results_['mean_test_mee']
-    split0_test_Loss = grid_result.cv_results_['split0_test_loss']
-    split1_test_Loss = grid_result.cv_results_['split1_test_loss']
-    split2_test_Loss = grid_result.cv_results_['split2_test_loss']
-    split0_test_Mee = grid_result.cv_results_['split0_test_mee']
-    split1_test_Mee = grid_result.cv_results_['split1_test_mee']
-    split2_test_Mee = grid_result.cv_results_['split2_test_mee']
+    meanTrainLoss = grid_result.cv_results_['mean_train_' + firstScore]
+    meanTestLoss = grid_result.cv_results_['mean_test_' + firstScore]
+    meanTrainMee = grid_result.cv_results_['mean_train_' + secondScore]
+    meanTestMee = grid_result.cv_results_['mean_test_' + secondScore]
+    split0_test_Loss = grid_result.cv_results_['split0_test_' + firstScore]
+    split1_test_Loss = grid_result.cv_results_['split1_test_' + firstScore]
+    split2_test_Loss = grid_result.cv_results_['split2_test_' + firstScore]
+    split0_test_Mee = grid_result.cv_results_['split0_test_' + secondScore]
+    split1_test_Mee = grid_result.cv_results_['split1_test_' + secondScore]
+    split2_test_Mee = grid_result.cv_results_['split2_test_' + secondScore]
     params = grid_result.cv_results_['params']
 
     # Stampa su file e print
-    results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [],
-                       'validation_loss': [], 'mee': []}
+    print(Type)
+    if save:
+        if Type == 'NN':
+            results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [],
+                           'validation_loss': [], 'mee': []}
+        elif Type == 'SVR_RBF':
+            results_records = {'C': [], 'gamma': [], 'slack': [], 'validation_loss': [], 'mee': []}
+        elif Type == 'SVR_POLY':
+            results_records = {'C': [], 'degree': [],
+                               # 'slack': [],
+                               'gamma': [],
+                               'validation_loss': [], 'mee': []}
+
+
     #
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
                                                                                            meanTrainMee, meanTestMee,
@@ -64,17 +76,26 @@ def print_and_saveGrid(grid_result):
                                                                                            split2_test_Mee, params):
         print("%f %f %f %f %f %f %f %f %f %f with: %r" % (meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM,
                                                           S1TM, S2TM, param))
-        results_records['n_layers'].append(param['level'])
-        results_records['hidden_layers_size'].append(param['units'])
-        results_records['batch_size'].append(param['batch_size'])
-        results_records['learning_rate'].append(param['learn_rate'])
-        results_records['validation_loss'].append(-meanTL)
-        results_records['mee'].append(meanTM)
+        if save:
+            if Type == 'NN':
+                results_records['n_layers'].append(param['level'])
+                results_records['hidden_layers_size'].append(param['units'])
+                results_records['batch_size'].append(param['batch_size'])
+                results_records['learning_rate'].append(param['learn_rate'])
+            elif Type == 'SVR_RBF':
+                results_records['C'].append(param['reg__estimator__C'])
+                results_records['gamma'].append(param['reg__estimator__gamma'])
+                results_records['slack'].append(param['reg__estimator__epsilon'])
+            elif Type == 'SVR_POLY':
+                results_records['C'].append(param['reg__estimator__C'])
+                results_records['degree'].append(param['reg__estimator__degree'])
+                results_records['degree'].append(param['reg__estimator__gamma'])
+                # results_records['slack'].append(param['reg__estimator__epsilon'])
+            results_records['validation_loss'].append(-meanTL)
+            results_records['mee'].append(meanTM)
 
-    results = pd.DataFrame(data=results_records)
-    filepath = "../DATA/grid_search_result_MPL"
-    file = open(filepath, mode='w')
-    results.to_csv(file, sep=',', header=True, index=False)
+    if save:
+        saveOnCSV(results_records, nameResult)
 
 
 def mean_euclidean_error(X, Y):
@@ -82,3 +103,10 @@ def mean_euclidean_error(X, Y):
     for x, y in zip(X, Y):
         sum += np.linalg.norm(x - y)
     return sum / X.shape[0]
+
+
+def saveOnCSV(results_records, nameResult):
+    results = pd.DataFrame(data=results_records)
+    filepath = "../DATA/" + nameResult
+    file = open(filepath, mode='w')
+    results.to_csv(file, sep=',', header=True, index=False)
