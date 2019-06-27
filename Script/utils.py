@@ -147,7 +147,6 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded):
         plt.title(title)
         plt.show()
 
-        # NON SALVA, DA FIXARE
         directory = "../Image/"
         file = title.replace(" ", "_") + ".png"
         if not os.path.exists(directory):
