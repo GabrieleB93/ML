@@ -14,6 +14,7 @@ epochs = 5000
 def main():
     X, Y = getTrainData()
     batch_size = [X.shape[0], 64]
+    print(X.shape[0])
 
     # create model
     model = KerasRegressor(build_fn=create_model, epochs=epochs, verbose=2)
@@ -23,7 +24,7 @@ def main():
     grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, refit=False, return_train_score=True, cv=3,
                         scoring=scoring)
 
-    print_and_saveGrid(grid.fit(X, Y))
+    print_and_saveGrid(grid.fit(X, Y), 'loss', 'mee', True, 'grid_search_result_MLP', 'NN')
 
 
 if __name__ == "__main__":
