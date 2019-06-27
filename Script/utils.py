@@ -3,6 +3,22 @@ import pandas as pd
 from keras import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
+from sklearn.metrics import make_scorer
+from matplotlib import gridspec
+import os
+import matplotlib.pyplot as plt
+import math
+import seaborn as sns
+
+
+def mean_euclidean_error(X, Y):
+    sum = 0
+    for x, y in zip(X, Y):
+        sum += np.linalg.norm(x - y)
+    return sum / X.shape[0]
+
+
+scoring = {'loss': 'neg_mean_squared_error', 'mee': make_scorer(mean_euclidean_error)}
 
 
 def getTrainData():
@@ -15,8 +31,8 @@ def getTrainData():
     return X, Y
 
 
+# Model for NN
 def create_model(learn_rate=0.01, units=100, level=1):
-    # create model
     model = Sequential()
     model.add(Dropout(0.2, input_shape=(10,)))
     model.add(Dense(units=units, input_dim=10, activation='relu'))
@@ -34,9 +50,17 @@ def create_model(learn_rate=0.01, units=100, level=1):
     return model
 
 
-def print_and_saveGrid(grid_result, firstScore, secondScore, save, nameResult=None, Type = None ):
+def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Type=None, ):
     # summarize results
     # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+    firstScore = 'loss'
+    secondScore = 'mee'
+
+    splitPlot = ''
+    pivot1 = ''
+    pivot2 = ''
+    pivot3 = 'mee'
+    excluded = 'validation_loss'
 
     meanTrainLoss = grid_result.cv_results_['mean_train_' + firstScore]
     meanTestLoss = grid_result.cv_results_['mean_test_' + firstScore]
@@ -50,20 +74,24 @@ def print_and_saveGrid(grid_result, firstScore, secondScore, save, nameResult=No
     split2_test_Mee = grid_result.cv_results_['split2_test_' + secondScore]
     params = grid_result.cv_results_['params']
 
-    # Stampa su file e print
+    # Print on file
     print(Type)
     if save:
         if Type == 'NN':
             results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [],
-                           'validation_loss': [], 'mee': []}
-        elif Type == 'SVR_RBF':
-            results_records = {'C': [], 'gamma': [], 'slack': [], 'validation_loss': [], 'mee': []}
-        elif Type == 'SVR_POLY':
-            results_records = {'C': [], 'degree': [],
-                               # 'slack': [],
-                               'gamma': [],
                                'validation_loss': [], 'mee': []}
-
+        elif Type == 'SVR_RBF':
+            results_records = {'C': [], 'gamma': [], 'epsilon': [], 'validation_loss': [], 'mee': []}
+            splitPlot = 'epsilon'
+            pivot2 = 'gamma'
+            pivot1 = 'C'
+        elif Type == 'SVR_POLY':
+            splitPlot = 'epsilon'
+            pivot2 = 'degree'
+            pivot1 = 'C'
+            results_records = {'C': [], 'degree': [],
+                               'epsilon': [],
+                               'validation_loss': [], 'mee': []}
 
     #
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
@@ -85,24 +113,20 @@ def print_and_saveGrid(grid_result, firstScore, secondScore, save, nameResult=No
             elif Type == 'SVR_RBF':
                 results_records['C'].append(param['reg__estimator__C'])
                 results_records['gamma'].append(param['reg__estimator__gamma'])
-                results_records['slack'].append(param['reg__estimator__epsilon'])
+                results_records['epsilon'].append(param['reg__estimator__epsilon'])
             elif Type == 'SVR_POLY':
                 results_records['C'].append(param['reg__estimator__C'])
+                results_records['epsilon'].append(param['reg__estimator__epsilon'])
                 results_records['degree'].append(param['reg__estimator__degree'])
-                results_records['degree'].append(param['reg__estimator__gamma'])
-                # results_records['slack'].append(param['reg__estimator__epsilon'])
+
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)
 
+    # To generalize
+    if plot and save and Type != 'NN':
+        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded)
     if save:
         saveOnCSV(results_records, nameResult)
-
-
-def mean_euclidean_error(X, Y):
-    sum = 0
-    for x, y in zip(X, Y):
-        sum += np.linalg.norm(x - y)
-    return sum / X.shape[0]
 
 
 def saveOnCSV(results_records, nameResult):
@@ -110,3 +134,22 @@ def saveOnCSV(results_records, nameResult):
     filepath = "../DATA/" + nameResult
     file = open(filepath, mode='w')
     results.to_csv(file, sep=',', header=True, index=False)
+    file.close()
+
+
+# To generalize
+def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded):
+    for d in ([x for _, x in dataframe.groupby(dataframe[splitData])]):
+        splitValue = d[splitData].max()
+        hm = d.drop([excluded, splitData], 1).sort_values([pivot2, pivot1])
+        sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary')
+        title = splitData + " " + str(splitValue) + " with " + pivot3
+        plt.title(title)
+        plt.show()
+
+        # NON SALVA, DA FIXARE
+        directory = "../Image/"
+        file = title.replace(" ", "_") + ".png"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        plt.savefig(directory + file)
