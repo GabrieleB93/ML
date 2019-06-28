@@ -1,7 +1,7 @@
 from os.path import exists
 import pandas as pd
 from utils import *
-
+import numpy as np
 data_path_POLY = "../DATA/grid_search_result_SVR_POLY"
 data_path_RBF = "../DATA/grid_search_result_SVR_RBF"
 
@@ -12,8 +12,6 @@ def main():
         data_POLY = pd.read_csv(data_path_POLY, sep=',', index_col=False)
 
         # df_corr = (data.corr())
-        #
-        #
         # plt.figure(figsize=(15, 10))
         # seaborn.heatmap(df_corr)
         # seaborn.set(font_scale=2)
@@ -38,6 +36,11 @@ def main():
         degree = best_row_POLY.iloc[0]['degree']
         gamma_RBF = best_row_RBF.iloc[0]['gamma']
 
+        C = []
+        for x in np.arange(10,100, (100/10)/2):
+            C.append(x)
+
+        print(C)
         print(C_RBF)
         print(C_POLY)
         print(epsilon_RBF)

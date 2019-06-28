@@ -21,7 +21,7 @@ def main():
     grid_param_svr_rbf = {
         'reg__estimator__C': C, 'reg__estimator__gamma': gamma, 'reg__estimator__epsilon': epsilon}
     grid_param_svr_poly = {
-        'reg__estimator__C': C, 'reg__estimator__degree': degree, 'reg__estimator__gamma': gamma}
+        'reg__estimator__C': C, 'reg__estimator__degree': degree, 'reg__estimator__epsilon': epsilon}
 
     # GridSearch and CrossValidation
     mlt1 = GridSearchCV(estimator=SVR_RBF, param_grid=grid_param_svr_rbf, refit=False, return_train_score=True, cv=3,
@@ -29,6 +29,7 @@ def main():
                         )
     mlt2 = GridSearchCV(estimator=SVR_POLY, param_grid=grid_param_svr_poly, refit=False, return_train_score=True, cv=3,
                         scoring=scoring)
+
 
     # Start training and  eventually plot
     print("Start SVR grid with RBF")
