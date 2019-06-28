@@ -132,8 +132,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
 def saveOnCSV(results_records, nameResult):
     results = pd.DataFrame(data=results_records)
-    t = strftime("%H_%M")
-    filepath = "../DATA/" + nameResult + "_" + t
+    filepath = "../DATA/" + nameResult
     file = open(filepath, mode='w')
     results.to_csv(file, sep=',', header=True, index=False)
     file.close()
