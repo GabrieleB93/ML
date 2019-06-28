@@ -6,6 +6,7 @@ from keras.optimizers import SGD
 from sklearn.metrics import make_scorer
 from matplotlib import gridspec
 import os
+from time import strftime
 import matplotlib.pyplot as plt
 import math
 import seaborn as sns
@@ -124,7 +125,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
     # To generalize
     if plot and save and Type != 'NN':
-        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded)
+        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type)
     if save:
         saveOnCSV(results_records, nameResult)
 
@@ -138,7 +139,7 @@ def saveOnCSV(results_records, nameResult):
 
 
 # To generalize
-def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded):
+def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
     for d in ([x for _, x in dataframe.groupby(dataframe[splitData])]):
         splitValue = d[splitData].max()
         hm = d.drop([excluded, splitData], 1).sort_values([pivot2, pivot1])
@@ -148,7 +149,8 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded):
         plt.show()
 
         directory = "../Image/"
-        file = title.replace(" ", "_") + ".png"
+        t = strftime("%H_%M")
+        file = title.replace(" ", "_") + Type + t +  ".png"
         if not os.path.exists(directory):
             os.makedirs(directory)
         plt.savefig(directory + file)
@@ -161,10 +163,6 @@ def getIntervalHyperP(dataFrame, hyperp):
 
     start = best_row.iloc[0][hyperp]
     end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
-
-
-    print("DDDDDDDDDDDD")
-    print(end)
 
     tmp = []
     for x in np.arange(start, (end + abs(end-start)/20), abs(end - start) / 20):
