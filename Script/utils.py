@@ -132,7 +132,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
 def saveOnCSV(results_records, nameResult):
     results = pd.DataFrame(data=results_records)
-    filepath = "../DATA/" + nameResult
+    t = strftime("%H_%M")
+    filepath = "../DATA/" + nameResult + "_" + t
     file = open(filepath, mode='w')
     results.to_csv(file, sep=',', header=True, index=False)
     file.close()
@@ -143,17 +144,17 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
     for d in ([x for _, x in dataframe.groupby(dataframe[splitData])]):
         splitValue = d[splitData].max()
         hm = d.drop([excluded, splitData], 1).sort_values([pivot2, pivot1])
-        sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary')
+        plot = sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary', vmin=0.90)
         title = splitData + " " + str(splitValue) + " with " + pivot3
         plt.title(title)
         plt.show()
 
         directory = "../Image/"
         t = strftime("%H_%M")
-        file = title.replace(" ", "_") + Type + t +  ".png"
+        file = title.replace(" ", "_") + Type + t + ".png"
         if not os.path.exists(directory):
             os.makedirs(directory)
-        plt.savefig(directory + file)
+        plot.savefig(directory + file)
 
 
 def getIntervalHyperP(dataFrame, hyperp):
@@ -165,6 +166,6 @@ def getIntervalHyperP(dataFrame, hyperp):
     end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
 
     tmp = []
-    for x in np.arange(start, (end + abs(end-start)/20), abs(end - start) / 20):
+    for x in np.arange(start, (end + abs(end - start) / 20), abs(end - start) / 20):
         tmp.append(float('%.3f' % x))
     return tmp
