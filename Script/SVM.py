@@ -7,7 +7,7 @@ from sklearn.model_selection import GridSearchCV
 C = [0.1, 1, 10, 100]
 gamma = [0.1, 1, 10, 100]
 epsilon = [0.001, 0.01]
-degree = [2, 3, 4]
+degree = [2, 3]
 
 
 def main():
