@@ -152,3 +152,21 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded):
         if not os.path.exists(directory):
             os.makedirs(directory)
         plt.savefig(directory + file)
+
+
+def getIntervalHyperP(dataFrame, hyperp):
+    sorted = dataFrame.sort_values('mee')
+
+    best_row = dataFrame[dataFrame.mee == dataFrame.mee.min()]
+
+    start = best_row.iloc[0][hyperp]
+    end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
+
+
+    print("DDDDDDDDDDDD")
+    print(end)
+
+    tmp = []
+    for x in np.arange(start, (end + abs(end-start)/20), abs(end - start) / 20):
+        tmp.append(float('%.3f' % x))
+    return tmp
