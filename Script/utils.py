@@ -61,7 +61,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
     pivot1 = ''
     pivot2 = ''
     pivot3 = 'mee'
-    excluded = 'validation_loss'
+    excluded = ['validation_loss']
 
     meanTrainLoss = grid_result.cv_results_['mean_train_' + firstScore]
     meanTestLoss = grid_result.cv_results_['mean_test_' + firstScore]
@@ -83,20 +83,18 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                                'validation_loss': [], 'mee': []}
         elif Type == 'SVR_RBF':
             results_records = {'C': [], 'gamma': [], 'epsilon': [], 'validation_loss': [], 'mee': []}
-            splitPlot = 'epsilon'
+            splitPlot = ['epsilon']
             pivot2 = 'gamma'
             pivot1 = 'C'
         elif Type == 'SVR_POLY':
-            splitPlot = 'epsilon'
+            splitPlot = ['epsilon', 'gamma']
             pivot2 = 'degree'
             pivot1 = 'C'
             results_records = {'C': [], 'degree': [],
                                'epsilon': [],
+                               'gamma': [],
                                'validation_loss': [], 'mee': []}
 
-    #
-    min = 100000
-    max = 0
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
                                                                                            meanTrainMee, meanTestMee,
                                                                                            split0_test_Loss,
@@ -107,8 +105,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                                                                                            split2_test_Mee, params):
         print("%f %f %f %f %f %f %f %f %f %f with: %r" % (meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM,
                                                           S1TM, S2TM, param))
-        min = np.minimum(min, meanTM)
-        max = np.maximum(max, meanTM)
+
         if save:
             if Type == 'NN':
                 results_records['n_layers'].append(param['level'])
@@ -123,13 +120,14 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['C'].append(param['reg__estimator__C'])
                 results_records['epsilon'].append(param['reg__estimator__epsilon'])
                 results_records['degree'].append(param['reg__estimator__degree'])
+                results_records['gamma'].append(param['reg__estimator__gamma'])
 
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)
 
     # To generalize
     if plot and save and Type != 'NN':
-        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type, min, max)
+        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type)
     if save:
         saveOnCSV(results_records, nameResult)
 
@@ -143,22 +141,25 @@ def saveOnCSV(results_records, nameResult):
 
 
 # To generalize
-def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type, min, max):
-    for d in ([x for _, x in dataframe.groupby(dataframe[splitData])]):
-        splitValue = d[splitData].max()
-        hm = d.drop([excluded, splitData], 1).sort_values([pivot2, pivot1])
-        fig = plt.figure()
-        sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary', vmin=min, vmax=max)
-        title = splitData + " " + str(splitValue) + " with " + pivot3
-        plt.title(title)
-        plt.show()
+def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
+    for splt in splitData:
+        print(splt)
+        for d in ([x for _, x in dataframe.groupby(dataframe[splt])]):
+            splitValue = d[splitData].max()
+            excluded.append(splt)
+            hm = d.drop(excluded, 1).sort_values([pivot2, pivot1])
+            fig = plt.figure()
+            sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary')
+            title = splt + " " + str(splitValue) + " with " + pivot3
+            plt.title(title)
+            plt.show()
 
-        directory = "../Image/"
-        t = strftime("%H_%M")
-        file = title.replace(" ", "_") + Type + t + ".png"
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        fig.savefig(directory + file)
+            directory = "../Image/"
+            t = strftime("%H_%M")
+            file = title.replace(" ", "_") + Type + t + ".png"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            fig.savefig(directory + file)
 
 
 def getIntervalHyperP(dataFrame, hyperp):
