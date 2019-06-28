@@ -17,9 +17,6 @@ def main():
         data_RBF = pd.read_csv(data_path_RBF, sep=',', index_col=False)
         data_POLY = pd.read_csv(data_path_POLY, sep=',', index_col=False)
 
-        best_row_POLY = data_POLY[data_POLY.mee == data_POLY.mee.min()]
-        best_row_RBF = data_RBF[data_RBF.mee == data_RBF.mee.min()]
-
         epsilon_RBF = data_RBF.sort_values('mee').iloc[0]['epsilon']
         epsilon_POLY = data_POLY.sort_values('mee').iloc[0]['epsilon']
         degree = int(data_POLY.sort_values('mee').iloc[0]['degree'])
@@ -48,7 +45,8 @@ def main():
             'reg__estimator__C': C_range_RBF, 'reg__estimator__gamma': gamma_range_RBF,
             'reg__estimator__epsilon': [epsilon_RBF]}
         grid_param_svr_poly = {
-            'reg__estimator__C': C_range_POLY, 'reg__estimator__degree': [degree], 'reg__estimator__epsilon': [epsilon_POLY]}
+            'reg__estimator__C': C_range_POLY, 'reg__estimator__degree': [degree],
+            'reg__estimator__epsilon': [epsilon_POLY]}
 
         # GridSearch and CrossValidation
         mlt1 = GridSearchCV(estimator=SVR_RBF, param_grid=grid_param_svr_rbf, refit=False, return_train_score=True,
@@ -66,6 +64,9 @@ def main():
         print("Start SVR grid with POLY")
         print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=False, nameResult='grid_search_result_SVR_POLY_2',
                            Type='SVR_POLY')
+
+    else:
+        print("First SVM")
 
 
 if __name__ == '__main__':
