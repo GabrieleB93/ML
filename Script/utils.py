@@ -95,6 +95,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                                'validation_loss': [], 'mee': []}
 
     #
+    min = 100000
+    max = 0
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
                                                                                            meanTrainMee, meanTestMee,
                                                                                            split0_test_Loss,
@@ -105,6 +107,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                                                                                            split2_test_Mee, params):
         print("%f %f %f %f %f %f %f %f %f %f with: %r" % (meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM,
                                                           S1TM, S2TM, param))
+        min = np.minimum(min, meanTM)
+        max = np.maximum(max, meanTM)
         if save:
             if Type == 'NN':
                 results_records['n_layers'].append(param['level'])
@@ -125,7 +129,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
     # To generalize
     if plot and save and Type != 'NN':
-        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type)
+        plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type, min, max)
     if save:
         saveOnCSV(results_records, nameResult)
 
@@ -139,13 +143,12 @@ def saveOnCSV(results_records, nameResult):
 
 
 # To generalize
-def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
-
+def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type, min, max):
     for d in ([x for _, x in dataframe.groupby(dataframe[splitData])]):
         splitValue = d[splitData].max()
         hm = d.drop([excluded, splitData], 1).sort_values([pivot2, pivot1])
         fig = plt.figure()
-        sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary', vmin=0.90)
+        sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary', vmin=min, vmax=max)
         title = splitData + " " + str(splitValue) + " with " + pivot3
         plt.title(title)
         plt.show()

@@ -5,9 +5,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 
 C = [0.1, 1, 10, 100]
-gamma = [0.1, 1, 10, 100]
+gamma = [0.001, 0.1, 1, 10, 100]
 epsilon = [0.001, 0.01]
-degree = [2, 3]
+degree = [2, 3, 4]
+gamma_poli = [0.001, 0.01, 0.1, 1]
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
 
     # Pipeline per SVR multiOutput
     SVR_RBF = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='rbf')))])
-    SVR_POLY = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='poly')))])
+    SVR_POLY = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='poly', gamma= 0.1)))])
 
     # Parameters per gridSearch
     grid_param_svr_rbf = {

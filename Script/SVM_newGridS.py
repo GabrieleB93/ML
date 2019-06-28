@@ -38,7 +38,7 @@ def main():
         # Pipeline per SVR multiOutput
         SVR_RBF = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='rbf')))])
         SVR_POLY = Pipeline(
-            [('reg', MultiOutputRegressor(SVR(verbose=True, kernel='poly')))])
+            [('reg', MultiOutputRegressor(SVR(verbose=True, kernel='poly', gamma=0.1)))])
 
         # Parameters per gridSearch
         grid_param_svr_rbf = {
