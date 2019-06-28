@@ -140,10 +140,12 @@ def saveOnCSV(results_records, nameResult):
 
 # To generalize
 def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
+
     for d in ([x for _, x in dataframe.groupby(dataframe[splitData])]):
         splitValue = d[splitData].max()
         hm = d.drop([excluded, splitData], 1).sort_values([pivot2, pivot1])
-        plot = sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary', vmin=0.90)
+        fig = plt.figure()
+        sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary', vmin=0.90)
         title = splitData + " " + str(splitValue) + " with " + pivot3
         plt.title(title)
         plt.show()
@@ -153,7 +155,7 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
         file = title.replace(" ", "_") + Type + t + ".png"
         if not os.path.exists(directory):
             os.makedirs(directory)
-        plot.savefig(directory + file)
+        fig.savefig(directory + file)
 
 
 def getIntervalHyperP(dataFrame, hyperp):
