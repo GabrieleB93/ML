@@ -87,12 +87,12 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             pivot2 = 'gamma'
             pivot1 = 'C'
         elif Type == 'SVR_POLY':
-            splitPlot = ['epsilon', 'gamma']
+            splitPlot = ['epsilon']
             pivot2 = 'degree'
             pivot1 = 'C'
             results_records = {'C': [], 'degree': [],
                                'epsilon': [],
-                               'gamma': [],
+                               # 'gamma': [],
                                'validation_loss': [], 'mee': []}
 
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
@@ -120,7 +120,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['C'].append(param['reg__estimator__C'])
                 results_records['epsilon'].append(param['reg__estimator__epsilon'])
                 results_records['degree'].append(param['reg__estimator__degree'])
-                results_records['gamma'].append(param['reg__estimator__gamma'])
+                # results_records['gamma'].append(param['reg__estimator__gamma'])
 
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)
@@ -143,10 +143,10 @@ def saveOnCSV(results_records, nameResult):
 # To generalize
 def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
     for splt in splitData:
-        print(splt)
         for d in ([x for _, x in dataframe.groupby(dataframe[splt])]):
-            splitValue = d[splitData].max()
-            excluded.append(splt)
+            splitValue = d[splt].max()
+            if splt not in excluded:
+                excluded.append(splt)
             hm = d.drop(excluded, 1).sort_values([pivot2, pivot1])
             fig = plt.figure()
             sns.heatmap(hm.pivot(pivot1, pivot2, pivot3), cmap='binary')
@@ -170,7 +170,14 @@ def getIntervalHyperP(dataFrame, hyperp):
     start = best_row.iloc[0][hyperp]
     end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
 
+
+    End = np.maximum(start,end)
+    Start = np.minimum(start,end)
+    print(Start)
+    print(End)
     tmp = []
-    for x in np.arange(start, (end + abs(end - start) / 20), abs(end - start) / 20):
+    for x in np.arange(Start, (End + abs(End - Start) / 20), abs(End - Start) / 20):
         tmp.append(float('%.3f' % x))
+
+    print(tmp)
     return tmp
