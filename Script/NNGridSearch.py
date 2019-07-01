@@ -11,7 +11,7 @@ epochs = 5000
 
 
 def main():
-    X, Y = getTrainData(CUP)
+    X, Y = getTrainData(CUP,  '1:11', '11:14', ',')
     batch_size = [X.shape[0], 64, 128]
     print(X.shape[0])
 

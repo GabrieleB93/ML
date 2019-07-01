@@ -13,7 +13,8 @@ degree = [2, 3, 4]
 
 
 def main():
-    X, Y = getTrainData(CUP)
+    X, Y = getTrainData(CUP, '1:11', '11:14', ',')
+
 
     # Pipeline per SVR multiOutput
     SVR_RBF = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='rbf')))])
@@ -35,9 +36,9 @@ def main():
 
     # Start training and  eventually plot
     print("Start SVR grid with RBF")
-    print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF', Type='SVR_RBF')
+    print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF:TODELTE', Type='SVR_RBF')
     print("Start SVR grid with POLY")
-    print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_POLY', Type='SVR_POLY')
+    # print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_POLY', Type='SVR_POLY')
 
 
 if __name__ == '__main__':

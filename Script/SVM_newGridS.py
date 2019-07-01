@@ -20,7 +20,7 @@ def main():
         C_range_POLY = getIntervalHyperP(data_POLY, 'C')
         gamma_range_RBF = getIntervalHyperP(data_RBF, 'gamma')
 
-        X, Y = getTrainData(CUP)
+        X, Y = getTrainData(CUP,  '1:11', '11:14', ',')
 
         print(epsilon_POLY)
         print(epsilon_RBF)

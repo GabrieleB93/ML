@@ -16,11 +16,13 @@ def mean_euclidean_error(X, Y):
     return sum / X.shape[0]
 
 
-def getTrainData(data_path):
-    data = pd.read_csv(data_path, header=None, sep=',')
+def getTrainData(data_path, DimX, DimY, sep):
+    startX, endX = DimX.split(':')
+    startY, endY = DimY.split(':')
+    data = pd.read_csv(data_path, header=None, sep=sep)
     print(data.shape)
-    X = np.array(data.iloc[:, 1:11])
-    Y = np.array(data.iloc[:, 11:])
+    X = np.array(data.iloc[:, int(startX):int(endX)])
+    Y = np.array(data.iloc[:, int(startY):int(endY)])
 
     return X, Y
 
@@ -163,9 +165,8 @@ def getIntervalHyperP(dataFrame, hyperp):
     start = best_row.iloc[0][hyperp]
     end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
 
-
-    End = np.maximum(start,end)
-    Start = np.minimum(start,end)
+    End = np.maximum(start, end)
+    Start = np.minimum(start, end)
     print(Start)
     print(End)
     tmp = []
