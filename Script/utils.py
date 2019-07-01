@@ -3,12 +3,9 @@ import pandas as pd
 from keras import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
-from sklearn.metrics import make_scorer
-from matplotlib import gridspec
 import os
 from time import strftime
 import matplotlib.pyplot as plt
-import math
 import seaborn as sns
 
 
@@ -19,11 +16,7 @@ def mean_euclidean_error(X, Y):
     return sum / X.shape[0]
 
 
-scoring = {'loss': 'neg_mean_squared_error', 'mee': make_scorer(mean_euclidean_error)}
-
-
-def getTrainData():
-    data_path = "../DATA/training_set.csv"
+def getTrainData(data_path):
     data = pd.read_csv(data_path, header=None, sep=',')
     print(data.shape)
     X = np.array(data.iloc[:, 1:11])

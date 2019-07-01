@@ -1,6 +1,7 @@
 from sklearn.model_selection import GridSearchCV
 from keras.wrappers.scikit_learn import KerasRegressor
 from utils import *
+from config import *
 
 # Variabili
 learn_rate = [0.0001, 0.001, 0.0002]
@@ -10,7 +11,7 @@ epochs = 5000
 
 
 def main():
-    X, Y = getTrainData()
+    X, Y = getTrainData(CUP)
     batch_size = [X.shape[0], 64, 128]
     print(X.shape[0])
 

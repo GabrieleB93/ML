@@ -1,21 +1,16 @@
 from os.path import exists
-import pandas as pd
 from sklearn.multioutput import MultiOutputRegressor
-from utils import scoring, getTrainData, print_and_saveGrid
 from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from utils import *
-import numpy as np
-
-data_path_POLY = "../DATA/grid_search_result_SVR_POLY"
-data_path_RBF = "../DATA/grid_search_result_SVR_RBF"
+from config import *
 
 
 def main():
-    if exists(data_path_POLY and data_path_RBF):
-        data_RBF = pd.read_csv(data_path_RBF, sep=',', index_col=False)
-        data_POLY = pd.read_csv(data_path_POLY, sep=',', index_col=False)
+    if exists(FIRST_GRID_POLY and FIRST_GRID_RBF):
+        data_RBF = pd.read_csv(FIRST_GRID_RBF, sep=',', index_col=False)
+        data_POLY = pd.read_csv(FIRST_GRID_POLY, sep=',', index_col=False)
 
         epsilon_RBF = data_RBF.sort_values('mee').iloc[0]['epsilon']
         epsilon_POLY = data_POLY.sort_values('mee').iloc[0]['epsilon']
@@ -25,7 +20,7 @@ def main():
         C_range_POLY = getIntervalHyperP(data_POLY, 'C')
         gamma_range_RBF = getIntervalHyperP(data_RBF, 'gamma')
 
-        X, Y = getTrainData()
+        X, Y = getTrainData(CUP)
 
         print(epsilon_POLY)
         print(epsilon_RBF)
@@ -66,7 +61,7 @@ def main():
                            Type='SVR_POLY')
 
     else:
-        print("First SVM")
+        print("First make SVM")
 
 
 if __name__ == '__main__':

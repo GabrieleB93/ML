@@ -1,8 +1,9 @@
 from sklearn.multioutput import MultiOutputRegressor
-from utils import scoring, getTrainData, print_and_saveGrid
+from utils import getTrainData, print_and_saveGrid
 from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
+from config import *
 
 C = [0.1, 1, 10, 100]
 gamma = [0.001, 0.01, 0.1, 1, 10, 100]
@@ -12,7 +13,7 @@ degree = [2, 3, 4]
 
 
 def main():
-    X, Y = getTrainData()
+    X, Y = getTrainData(CUP)
 
     # Pipeline per SVR multiOutput
     SVR_RBF = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='rbf')))])
