@@ -7,6 +7,8 @@ import os
 from time import strftime
 import matplotlib.pyplot as plt
 import seaborn as sns
+from os.path import exists
+from os import makedirs
 
 
 def mean_euclidean_error(X, Y):
@@ -28,7 +30,7 @@ def getTrainData(data_path, DimX, DimY, sep):
 
 
 # Model for NN
-def create_model(input_dim, output_dim, learn_rate=0.01, units=100, level=5):
+def create_model(input_dim, output_dim, learn_rate=0.01, units=100, level=5, momentum=0.9):
     model = Sequential()
     # model.add(Dropout(0.2, input_shape=(10,)))
     model.add(Dense(units=units, input_dim=input_dim, activation='relu'))
@@ -40,7 +42,7 @@ def create_model(input_dim, output_dim, learn_rate=0.01, units=100, level=5):
 
     model.add(Dense(output_dim, activation='relu'))
 
-    optimizer = SGD(lr=learn_rate, momentum=0.9, nesterov=False, decay=0.005)
+    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=0.005)
     # Compile model
     model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=['accuracy'])
 
@@ -183,3 +185,56 @@ def fromCSVToLatexTable(nome1, nome2):
     a = df.values
     a = a[:, 1:]
     np.savetxt("../DATA/Latextable" + nome2 + ".csv", a, delimiter=' & ', fmt='%2.2e', newline=' \\\\\n')
+
+
+
+def split_development_set(validation_perc):
+    data_path = "../DATA/training_set.csv"
+
+    data = pd.read_csv(data_path, header=None, comment='#')
+
+    remove_n = int(len(data.index) / validation_perc)
+
+    drop_ind = np.random.choice(data.index, remove_n, replace=False)
+
+    val_set = data.iloc[drop_ind, :]
+
+    filepath_val = "../DATA/val_set.csv"
+    file = open(filepath_val, mode='w')
+    val_set.to_csv(file, sep=',', header=False, index=False)
+
+    tr_set = data.drop(drop_ind)
+
+    filepath_tr = "../DATA/tr_set.csv"
+    file = open(filepath_tr, mode='w')
+    tr_set.to_csv(file, sep=',', header=False, index=False)
+
+    X_train, Y_train = getTrainData(filepath_tr)
+    X_val, Y_val = getTrainData(filepath_val)
+
+    return X_train, Y_train, X_val, Y_val
+
+
+def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rate, momentum, batch_size, epochs):
+    print("Training with: lr=%f, batch size=%f, n layers=%f, units=%f, momentum=%f" % (
+    learning_rate, batch_size, n_layers, n_units, momentum))
+
+    model = create_model(learn_rate=learning_rate, units=n_units, level=n_layers, momentum=momentum)
+    history = model.fit(X_tr, Y_tr, shuffle=True, epochs=epochs, verbose=2, batch_size=batch_size,
+                        validation_data=(X_val, Y_val))
+
+    print("Min loss:", min(history.history['val_loss']))
+
+    fig = plt.figure()
+
+    plt.plot(history.history['loss'], label="TR Loss")
+    plt.plot(history.history['val_loss'], label="VL Loss")
+    plt.ylim((0, 2))
+    plt.legend(loc='upper right')
+    # lt.show()
+
+    directory = "../Image/MLP/"
+    file = "Eta" + str(learning_rate) + "batch" + str(batch_size) + "m" + str(momentum) + "epochs" + str(epochs) + ".png"
+    if not exists(directory):
+        makedirs(directory)
+    fig.savefig(directory + file)
