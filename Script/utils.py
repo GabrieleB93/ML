@@ -29,6 +29,7 @@ def getTrainData(data_path, DimX, DimY, sep):
     return X, Y
 
 
+
 # Model for NN
 def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9):
     model = Sequential()
