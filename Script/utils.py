@@ -91,7 +91,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             pivot1 = 'C'
             results_records = {'C': [], 'degree': [],
                                'epsilon': [],
-                               # 'gamma': [],
+                               'gamma': [],
+                               'coef0': [],
                                'validation_loss': [], 'mee': []}
 
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
@@ -119,7 +120,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['C'].append(param['reg__estimator__C'])
                 results_records['epsilon'].append(param['reg__estimator__epsilon'])
                 results_records['degree'].append(param['reg__estimator__degree'])
-                # results_records['gamma'].append(param['reg__estimator__gamma'])
+                results_records['gamma'].append(param['reg__estimator__gamma'])
+                results_records['coef0'].append(param['reg__estimator__coef0'])
 
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)
