@@ -30,7 +30,7 @@ def getTrainData(data_path, DimX, DimY, sep):
 
 
 # Model for NN
-def create_model(input_dim, output_dim, learn_rate=0.01, units=100, level=5, momentum=0.9):
+def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9):
     model = Sequential()
     # model.add(Dropout(0.2, input_shape=(10,)))
     model.add(Dense(units=units, input_dim=input_dim, activation='relu'))
