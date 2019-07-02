@@ -28,18 +28,19 @@ def getTrainData(data_path, DimX, DimY, sep):
 
 
 # Model for NN
-def create_model(learn_rate=0.01, units=100, level=1):
+def create_model(input_dim, output_dim, learn_rate=0.01, units=100, level=5):
     model = Sequential()
-    model.add(Dropout(0.2, input_shape=(10,)))
-    model.add(Dense(units=units, input_dim=10, activation='relu'))
+    # model.add(Dropout(0.2, input_shape=(10,)))
+    model.add(Dense(units=units, input_dim=input_dim, activation='relu'))
 
     for l in range(level - 1):
-        model.add(Dropout(0.2))
-        model.add(Dense(units=units, input_dim=10, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(Dense(units=units, input_dim=10, activation='relu'))
+        model.add(Dense(units=units, activation='relu'))
 
-    model.add(Dense(2, activation='linear'))
+    model.add(Dense(output_dim, activation='relu'))
 
-    optimizer = SGD(lr=learn_rate, momentum=0.9, nesterov=False, decay=0)
+    optimizer = SGD(lr=learn_rate, momentum=0.9, nesterov=False, decay=0.005)
     # Compile model
     model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=['accuracy'])
 
@@ -129,7 +130,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
 def saveOnCSV(results_records, nameResult):
     results = pd.DataFrame(data=results_records)
-    filepath = "../DATA/" + nameResult
+    filepath = "../DATA/" + nameResult + ".csv"
     file = open(filepath, mode='w')
     results.to_csv(file, sep=',', header=True, index=False)
     file.close()
@@ -175,3 +176,10 @@ def getIntervalHyperP(dataFrame, hyperp):
 
     print(tmp)
     return tmp
+
+
+def fromCSVToLatexTable(nome1, nome2):
+    df = pd.read_csv("../DATA/" + nome1)
+    a = df.values
+    a = a[:, 1:]
+    np.savetxt("../DATA/Latextable" + nome2 + ".csv", a, delimiter=' & ', fmt='%2.2e', newline=' \\\\\n')
