@@ -10,6 +10,7 @@ import seaborn as sns
 from os.path import exists
 from os import makedirs
 from config import *
+from keras import regularizers
 
 
 def mean_euclidean_error(X, Y):
@@ -31,21 +32,21 @@ def getTrainData(data_path, DimX, DimY, sep):
 
 
 # Model for NN
-def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9):
+def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0, activation='relu', lamda=0):
     model = Sequential()
     # model.add(Dropout(0.2, input_shape=(10,)))
-    model.add(Dense(units=units, input_dim=input_dim, activation='relu'))
+    model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l2(lamda)))
 
     for l in range(level - 1):
         # model.add(Dropout(0.2))
         # model.add(Dense(units=units, input_dim=10, activation='relu'))
-        model.add(Dense(units=units, activation='relu'))
+        model.add(Dense(units=units, activation=activation,kernel_regularizer=regularizers.l2(lamda)))
 
-    model.add(Dense(output_dim, activation='relu'))
+    model.add(Dense(output_dim, activation=activation,kernel_regularizer=regularizers.l2(lamda)))
 
-    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=0.005)
+    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=decay)
     # Compile model
-    model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
     return model
 
@@ -89,6 +90,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             splitPlot = ['epsilon']
             pivot2 = 'degree'
             pivot1 = 'C'
+            excluded = ['validation_loss', 'coef0', 'gamma']
             results_records = {'C': [], 'degree': [],
                                'epsilon': [],
                                'gamma': [],
