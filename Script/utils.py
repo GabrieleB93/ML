@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from os.path import exists
 from os import makedirs
+from config import *
 
 
 def mean_euclidean_error(X, Y):
@@ -27,7 +28,6 @@ def getTrainData(data_path, DimX, DimY, sep):
     Y = np.array(data.iloc[:, int(startY):int(endY)])
 
     return X, Y
-
 
 
 # Model for NN
@@ -139,7 +139,7 @@ def saveOnCSV(results_records, nameResult):
     file.close()
 
 
-# To generalize
+# Plot grid
 def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
     for splt in splitData:
         for d in ([x for _, x in dataframe.groupby(dataframe[splt])]):
@@ -181,18 +181,8 @@ def getIntervalHyperP(dataFrame, hyperp):
     return tmp
 
 
-def fromCSVToLatexTable(nome1, nome2):
-    df = pd.read_csv("../DATA/" + nome1)
-    a = df.values
-    a = a[:, 1:]
-    np.savetxt("../DATA/Latextable" + nome2 + ".csv", a, delimiter=' & ', fmt='%2.2e', newline=' \\\\\n')
-
-
-
 def split_development_set(validation_perc):
-    data_path = "../DATA/training_set.csv"
-
-    data = pd.read_csv(data_path, header=None, comment='#')
+    data = pd.read_csv(CUP, header=None, comment='#')
 
     remove_n = int(len(data.index) / validation_perc)
 
@@ -200,25 +190,23 @@ def split_development_set(validation_perc):
 
     val_set = data.iloc[drop_ind, :]
 
-    filepath_val = "../DATA/val_set.csv"
-    file = open(filepath_val, mode='w')
+    file = open(VAL_SET, mode='w')
     val_set.to_csv(file, sep=',', header=False, index=False)
 
     tr_set = data.drop(drop_ind)
 
-    filepath_tr = "../DATA/tr_set.csv"
-    file = open(filepath_tr, mode='w')
+    file = open(TRAIN_SET, mode='w')
     tr_set.to_csv(file, sep=',', header=False, index=False)
 
-    X_train, Y_train = getTrainData(filepath_tr)
-    X_val, Y_val = getTrainData(filepath_val)
+    X_train, Y_train = getTrainData(TRAIN_SET, '1:11', '11:14', ',')
+    X_val, Y_val = getTrainData(VAL_SET, '1:11', '11:14', ',')
 
     return X_train, Y_train, X_val, Y_val
 
 
 def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rate, momentum, batch_size, epochs):
     print("Training with: lr=%f, batch size=%f, n layers=%f, units=%f, momentum=%f" % (
-    learning_rate, batch_size, n_layers, n_units, momentum))
+        learning_rate, batch_size, n_layers, n_units, momentum))
 
     model = create_model(learn_rate=learning_rate, units=n_units, level=n_layers, momentum=momentum)
     history = model.fit(X_tr, Y_tr, shuffle=True, epochs=epochs, verbose=2, batch_size=batch_size,
@@ -235,7 +223,8 @@ def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rat
     # lt.show()
 
     directory = "../Image/MLP/"
-    file = "Eta" + str(learning_rate) + "batch" + str(batch_size) + "m" + str(momentum) + "epochs" + str(epochs) + ".png"
+    file = "Eta" + str(learning_rate) + "batch" + str(batch_size) + "m" + str(momentum) + "epochs" + str(
+        epochs) + ".png"
     if not exists(directory):
         makedirs(directory)
     fig.savefig(directory + file)
