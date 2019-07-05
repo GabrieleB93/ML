@@ -1,14 +1,18 @@
+from sklearn.preprocessing import StandardScaler
+
 from config import *
 from utils import *
 
-Model1 = {'layer': 2, 'hidden_units': 30, 'learning_rate': 0.5, 'momentum': 0.9, 'decay': 0,
-          'epochs': 600, 'batch': 32, 'activation': 'sigmoid', 'lamda':0.001}
+Model1 = {'layer': 1, 'hidden_units': 7, 'learning_rate': 0.6, 'momentum': 0.9, 'decay': 0,
+          'epochs': 1000, 'batch': 32, 'activation': 'sigmoid', 'lamda': 0}
 
-Model2 = {'layer': 2, 'hidden_units': 30, 'learning_rate': 0.6, 'momentum': 0.6, 'decay': 0.01,
-          'epochs': 1000, 'batch': 32, 'activation': 'sigmoid', 'lamda':0.001}
+Model2 = {'layer': 1, 'hidden_units': 10, 'learning_rate': 0.5, 'momentum': 0.99, 'decay': 0,
+          'epochs': 1000, 'batch': 32, 'activation': 'sigmoid', 'lamda': 0}
 
-Model3 = {'layer': 3, 'hidden_units': 20, 'learning_rate': 0.005, 'momentum': 0.6, 'lamda':0.001,
-          'epochs': 300, 'batch': 1, 'activation': 'relu', 'decay': 0.1}
+Model3 = {'layer': 1, 'hidden_units': 7, 'learning_rate': 0.16, 'momentum': 0.9, 'lamda': 0.00025,
+          'epochs': 1500, 'batch': 1, 'activation': 'sigmoid', 'decay': 0}
+
+# bias a 0 per MONK 3
 
 Models = [Model1, Model2, Model3]
 
@@ -23,32 +27,51 @@ def main():
     XTS3, YTS3 = getTrainData(Monk3TS, '2:8', '1:2', ' ')
     XTR3, YTR3 = getTrainData(Monk3TR, '2:8', '1:2', ' ')
 
+    scaler = StandardScaler()
+
+    XTR3 = scaler.fit_transform(XTR3)
+    XTS3 = scaler.fit_transform(XTS3)
+
+    XTR2 = scaler.fit_transform(XTR2)
+    XTS2 = scaler.fit_transform(XTS2)
+
+    XTR1 = scaler.fit_transform(XTR1)
+    XTS1 = scaler.fit_transform(XTS1)
+
+    print(YTR3.shape[1])
+
     # Model1['batch'] = int(XTR1.shape[0]/10)
-    Model2['batch'] = XTR2.shape[0]
     Model3['batch'] = XTR3.shape[0]
+    # Model2['batch'] =
 
     model1 = create_model(XTR1.shape[1], YTR1.shape[1], Model1['learning_rate'], Model1['hidden_units'],
                           Model1['layer'], Model1['momentum'], Model1['decay'], Model1['activation'], Model1['lamda'])
     model2 = create_model(XTR2.shape[1], YTR2.shape[1], Model2['learning_rate'], Model2['hidden_units'],
-                          Model1['layer'], Model1['momentum'], Model1['decay'], Model1['activation'],Model1['lamda'])
+                          Model2['layer'], Model2['momentum'], Model2['decay'], Model2['activation'], Model2['lamda'])
     model3 = create_model(XTR3.shape[1], YTR3.shape[1], Model3['learning_rate'], Model3['hidden_units'],
-                          Model3['layer'], Model3['decay'] , Model1['lamda'])
+                          Model3['layer'], Model3['decay'], Model3['lamda'])
 
-    # history1 = model1.fit(XTR1, YTR1, shuffle=True, epochs=Model1['epochs'], verbose=2, batch_size=XTR1.shape[0],
+    # history1 = model1.fit(XTR1, YTR1, shuffle=True, epochs=Model1['epochs'], verbose=2, batch_size=Model1['batch'],
     #                       validation_data=[XTS1, YTS1])
-                          # validation_split=0.2)
-    history2 = model2.fit(XTR2, YTR2, shuffle=True, epochs=Model2['epochs'], verbose=2, batch_size=XTR2.shape[0],
-                          validation_data=[XTS2,YTS2])
-    # history3 = model3.fit(XTR3, YTR3, shuffle=True, epochs=Model3['epochs'], verbose=2, batch_size=XTR3.shape[0],
     #                       validation_split=0.2)
+    # history2 = model2.fit(XTR2, YTR2, shuffle=True, epochs=Model2['epochs'], verbose=2, batch_size=Model2['batch'],
+    #                       validation_split=0.2)
+    # history3 = model3.fit(XTR3, YTR3, shuffle=True, epochs=Model3['epochs'], verbose=2, batch_size=Model3['batch'],
+    #                       validation_split=0.2)
+    #
+    # history2 = model2.fit(XTR2, YTR2, shuffle=True, epochs=Model2['epochs'], verbose=2, batch_size=XTR2.shape[0],
+    #                       validation_data=[XTS2, YTS2])
+
+    history3 = model3.fit(XTR3, YTR3, shuffle=True, epochs=Model3['epochs'], verbose=2, batch_size=XTR3.shape[0],
+                          validation_data=[XTS3, YTS3])
 
     # print("Min loss:", min(history1.history['val_loss']))
     # print("Min loss:", min(history2.history['val_loss']))
-    # print("Min loss:", min(history3.history['val_loss']))
+    print("Min loss:", min(history3.history['val_loss']))
 
     # printPlots(history1, True, 'Monk1')
     # printPlots(history2, True, 'Monk2')
-    # printPlots(history3, True, 'Monk3')
+    printPlots(history3, True, 'Monk3')
 
     # printCSV([history1, history2, history3])
 
