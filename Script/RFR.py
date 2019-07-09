@@ -6,8 +6,8 @@ from utils import *
 from sklearn.preprocessing import StandardScaler
 
 Predict = False
-CV = True
-GRID = False
+CV = False
+GRID = True
 # Plot = 'OLD'
 Plot = 'NEW'
 
@@ -26,7 +26,7 @@ def rfr_model(x, y):  # Perform Grid-Search
 
         grid_result = gsc.fit(x, y)
         best_params = grid_result
-        print_and_saveGrid(grid_result, True, True, 'grid_search_result_RFR', 'RFR')
+        print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR1', 'RFR')
         # print(best_params)
         # print(grid_result.cv_results_['mean_test_score'])
         print(grid_result.cv_results_['mean_test_mee'])

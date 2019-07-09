@@ -13,6 +13,7 @@ VAL_SET = "../DATA/val_set.csv"
 FIRST_GRID_POLY = "../DATA/grid_search_result_SVR_POLY.csv"
 FIRST_GRID_RBF = "../DATA/grid_search_result_SVR_RBF.csv"
 FIRST_GRID_NN = "../DATA/grid_search_result_MPL.csv"
+FIRST_GRID_RFR = "../DATA/grid_search_result_RFR.csv"
 
 def mean_euclidean_error(X, Y):
     sum = 0

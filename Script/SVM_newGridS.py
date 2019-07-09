@@ -43,8 +43,8 @@ def main():
             'reg__estimator__epsilon': [epsilon_RBF]}
         grid_param_svr_poly = {
             'reg__estimator__C': [C_POLY], 'reg__estimator__degree': [degree],
-            'reg__estimator__epsilon': [epsilon_POLY], 'reg__estimator__coef0': [1, 1.5, 2],
-            'reg__estimator__gamma': [0.1, 1]}
+            'reg__estimator__epsilon': [epsilon_POLY], 'reg__estimator__coef0': [0, 0.5, 1, 2],
+            'reg__estimator__gamma': [0.01, 0.1, 1]}
 
         # GridSearch and CrossValidation
         mlt1 = GridSearchCV(estimator=SVR_RBF, param_grid=grid_param_svr_rbf, refit=False, return_train_score=True,

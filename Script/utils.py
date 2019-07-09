@@ -25,10 +25,12 @@ def getTrainData(data_path, DimX, DimY, sep):
 
 
 # Model for NN
-def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0,
-                 activation='relu', lamda=0):
+def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0, activation='relu', lamda=0):
+
+    print(units)
+    print(level)
+
     model = Sequential()
-    print(lamda)
     # model.add(Dropout(0.2, input_shape=(10,)))
     model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l1(lamda),
                     bias_initializer='zeros', use_bias=True))
@@ -43,7 +45,7 @@ def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5
         Dense(output_dim, activation=activation, kernel_regularizer=regularizers.l1(lamda), bias_initializer='zeros',
               use_bias=True))
 
-    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=True, decay=decay)
+    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=decay)
     # Compile model
     model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=['accuracy'])
 
@@ -101,6 +103,10 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             splitPlot = ['min_samples_split']
             pivot2 = 'max_depth'
             pivot1 = 'n_estimators'
+        elif Type =='Monk':
+            results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [], 'decay': [],
+                               'momentum':[], 'lamda':[], 'activation':[],
+                               'validation_loss': [], 'mee': []}
 
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
                                                                                            meanTrainMee, meanTestMee,
@@ -131,6 +137,15 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['degree'].append(param['reg__estimator__degree'])
                 results_records['gamma'].append(param['reg__estimator__gamma'])
                 results_records['coef0'].append(param['reg__estimator__coef0'])
+            elif Type == "Monk":
+                results_records['n_layers'].append(param['level'])
+                results_records['hidden_layers_size'].append(param['units'])
+                results_records['batch_size'].append(param['batch_size'])
+                results_records['learning_rate'].append(param['learn_rate'])
+                results_records['momentum'].append(param['momentum'])
+                results_records['activation'].append(param['activation'])
+                results_records['decay'].append(param['decay'])
+                results_records['lamda'].append(param['lamda'])
             elif Type == 'RFR':
                 results_records['n_estimators'].append(param['n_estimators'])
                 results_records['max_depth'].append(param['max_depth'])
@@ -143,6 +158,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
     if plot and save and Type != 'NN':
         plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type)
     if save:
+        print(results_records)
         saveOnCSV(results_records, nameResult)
 
 
