@@ -121,7 +121,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
         if save:
             if Type == 'NN':
-                results_records['n_layers'].append(param['level'])
+                results_records ['n_layers'].append(param['level'])
                 results_records['hidden_layers_size'].append(param['units'])
                 results_records['batch_size'].append(param['batch_size'])
                 results_records['learning_rate'].append(param['learn_rate'])
