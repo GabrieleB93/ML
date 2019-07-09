@@ -13,17 +13,10 @@ from config import *
 from keras import regularizers
 
 
-def mean_euclidean_error(X, Y):
-    sum = 0
-    for x, y in zip(X, Y):
-        sum += np.linalg.norm(x - y)
-    return sum / X.shape[0]
-
-
 def getTrainData(data_path, DimX, DimY, sep):
     startX, endX = DimX.split(':')
     startY, endY = DimY.split(':')
-    data = pd.read_csv(data_path, header=None, sep=sep)
+    data = pd.read_csv(data_path, header=None, sep=sep, comment='#')
     print(data.shape)
     X = np.array(data.iloc[:, int(startX):int(endX)])
     Y = np.array(data.iloc[:, int(startY):int(endY)])
@@ -32,21 +25,27 @@ def getTrainData(data_path, DimX, DimY, sep):
 
 
 # Model for NN
-def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0, activation='relu', lamda=0):
+def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0,
+                 activation='relu', lamda=0):
     model = Sequential()
+    print(lamda)
     # model.add(Dropout(0.2, input_shape=(10,)))
-    model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l2(lamda)))
+    model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l1(lamda),
+                    bias_initializer='zeros', use_bias=True))
 
     for l in range(level - 1):
         # model.add(Dropout(0.2))
         # model.add(Dense(units=units, input_dim=10, activation='relu'))
-        model.add(Dense(units=units, activation=activation,kernel_regularizer=regularizers.l2(lamda)))
+        model.add(Dense(units=units, activation=activation, kernel_regularizer=regularizers.l1(lamda),
+                        bias_initializer='zeros', use_bias=True))
 
-    model.add(Dense(output_dim, activation=activation,kernel_regularizer=regularizers.l2(lamda)))
+    model.add(
+        Dense(output_dim, activation=activation, kernel_regularizer=regularizers.l1(lamda), bias_initializer='zeros',
+              use_bias=True))
 
-    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=decay)
+    optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=True, decay=decay)
     # Compile model
-    model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+    model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=['accuracy'])
 
     return model
 
@@ -96,6 +95,12 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                                'gamma': [],
                                'coef0': [],
                                'validation_loss': [], 'mee': []}
+        elif Type == 'RFR':
+            results_records = {'n_estimators': [], 'max_depth': [], 'min_samples_split': [], 'validation_loss': [],
+                               'mee': []}
+            splitPlot = ['min_samples_split']
+            pivot2 = 'max_depth'
+            pivot1 = 'n_estimators'
 
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
                                                                                            meanTrainMee, meanTestMee,
@@ -114,6 +119,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['hidden_layers_size'].append(param['units'])
                 results_records['batch_size'].append(param['batch_size'])
                 results_records['learning_rate'].append(param['learn_rate'])
+                print(param['level'])
+                print(param['batch_size'])
             elif Type == 'SVR_RBF':
                 results_records['C'].append(param['reg__estimator__C'])
                 results_records['gamma'].append(param['reg__estimator__gamma'])
@@ -124,6 +131,10 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['degree'].append(param['reg__estimator__degree'])
                 results_records['gamma'].append(param['reg__estimator__gamma'])
                 results_records['coef0'].append(param['reg__estimator__coef0'])
+            elif Type == 'RFR':
+                results_records['n_estimators'].append(param['n_estimators'])
+                results_records['max_depth'].append(param['max_depth'])
+                results_records['min_samples_split'].append(param['min_samples_split'])
 
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)
@@ -138,7 +149,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 def saveOnCSV(results_records, nameResult):
     results = pd.DataFrame(data=results_records)
     filepath = "../DATA/" + nameResult + ".csv"
-    file = open(filepath, mode='w')
+    file = open(filepath, mode='a+')
     results.to_csv(file, sep=',', header=True, index=False)
     file.close()
 
@@ -208,11 +219,11 @@ def split_development_set(validation_perc):
     return X_train, Y_train, X_val, Y_val
 
 
-def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rate, momentum, batch_size, epochs):
+def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rate, momentum, batch_size, epochs, lamda):
     print("Training with: lr=%f, batch size=%f, n layers=%f, units=%f, momentum=%f" % (
         learning_rate, batch_size, n_layers, n_units, momentum))
 
-    model = create_model(learn_rate=learning_rate, units=n_units, level=n_layers, momentum=momentum)
+    model = create_model(learn_rate=learning_rate, units=n_units, level=n_layers, momentum=momentum, lamda=lamda)
     history = model.fit(X_tr, Y_tr, shuffle=True, epochs=epochs, verbose=2, batch_size=batch_size,
                         validation_data=(X_val, Y_val))
 
@@ -221,10 +232,10 @@ def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rat
     fig = plt.figure()
 
     plt.plot(history.history['loss'], label="TR Loss")
-    plt.plot(history.history['val_loss'], label="VL Loss")
-    plt.ylim((0, 2))
+    plt.plot(history.history['val_loss'], label="VL Loss", linestyle='dashed')
+    plt.ylim((0, 5))
     plt.legend(loc='upper right')
-    # lt.show()
+    plt.show()
 
     directory = "../Image/MLP/"
     file = "Eta" + str(learning_rate) + "batch" + str(batch_size) + "m" + str(momentum) + "epochs" + str(
