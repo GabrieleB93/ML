@@ -1,10 +1,10 @@
 import pandas as pd
-import numpy as np
 from sklearn.preprocessing import StandardScaler
+from config import *
 
 
 def main():
-    data_path = "../DATA/ML-CUP18-TR.csv"
+    data_path = ALL_DATA
 
     data = pd.read_csv(data_path, header=None, comment='#')
 
@@ -31,15 +31,20 @@ def main():
     test_set = normalized_data.iloc[drop_ind, :]
     print(test_set.shape)
 
-    filepath = "../DATA/test_set.csv"
-    file = open(filepath, mode='w')
+    # filepath = "../DATA/test_set.csv"
+    # file = open(filepath, mode='w')
+
+    file = open(TEST_SET, mode='w')
+
     test_set.to_csv(file, sep=',', header=False, index=False)
 
     training_set = normalized_data.drop(drop_ind)
     print(training_set.shape)
 
-    filepath = "../DATA/training_set.csv"
-    file = open(filepath, mode='w')
+    # filepath = "../DATA/training_set.csv"
+    # file = open(filepath, mode='w')
+
+    file = open(CUP, mode='w')
     training_set.to_csv(file, sep=',', header=False, index=False)
 
 

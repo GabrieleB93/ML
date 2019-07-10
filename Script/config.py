@@ -9,16 +9,19 @@ Monk3TS = '../../DATA/MONK/monks-3.test'
 Monk3TR = '../../DATA/MONK/monks-3.train'
 
 ALL_DATA = '../../DATA/ML-CUP18-TR.csv'
-
 BLIND_DATA = '../../DATA/ML-CUP18-TS.csv'
 
 CUP = "../../DATA/training_set.csv"
+TEST_SET = "../../DATA/test_set.csv"
+
 TRAIN_SET = "../../DATA/tr_set.csv"
 VAL_SET = "../../DATA/val_set.csv"
 
 FIRST_GRID_POLY = "../../DATA/SVR_POLY/grid_search_result_SVR_POLY.csv"
+SECOND_GRID_POLY = "../../DATA/SVR_POLY/grid_search_result_SVR_POLY2.csv"
 
 FIRST_GRID_RBF = "../../DATA/SVR_RBF/grid_search_result_SVR_RBF.csv"
+SECOND_GRID_RBF = "../../DATA/SVR_RBF/grid_search_result_SVR_RBF2.csv"
 
 FIRST_GRID_NN = "../../DATA/NN/grid_search_result_MPL.csv"
 SECOND_GRID_NN = "../../DATA/NN/grid_search_result_MPL2.csv"
