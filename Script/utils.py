@@ -120,7 +120,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             splitPlot = ['random_state']
             pivot2 = 'max_depth'
             pivot1 = 'n_estimators'
-        elif Type =='Monk':
+        elif Type =='MONK':
             results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [], 'decay': [],
                                'momentum':[], 'lamda':[], 'activation':[],
                                'validation_loss': [], 'mee': []}
@@ -154,7 +154,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['degree'].append(param['reg__estimator__degree'])
                 results_records['gamma'].append(param['reg__estimator__gamma'])
                 results_records['coef0'].append(param['reg__estimator__coef0'])
-            elif Type == "Monk":
+            elif Type == "MONK":
                 results_records['n_layers'].append(param['level'])
                 results_records['hidden_layers_size'].append(param['units'])
                 results_records['batch_size'].append(param['batch_size'])
@@ -190,14 +190,14 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
         plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type)
     if save:
         print(results_records)
-        saveOnCSV(results_records, nameResult)
+        saveOnCSV(results_records, nameResult, Type)
 
 
-def saveOnCSV(results_records, nameResult):
+def saveOnCSV(results_records, nameResult, Type):
     results = pd.DataFrame(data=results_records)
     results = results.sort_values('mee', ascending=True)
-    filepath = "../DATA/" + nameResult + ".csv"
-    file = open(filepath, mode='a+')
+    filepath = "../../DATA/" + Type + "/" + nameResult + ".csv"
+    file = open(filepath, mode='w')
     results.to_csv(file, sep=',', header=True, index=False)
     file.close()
 
@@ -216,7 +216,7 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
             plt.title(title)
             plt.show()
 
-            directory = "../Image/"
+            directory = "../../Image/"+Type+"/"
             t = strftime("%H_%M")
             file = title.replace(" ", "_") + Type + t + ".png"
             if not os.path.exists(directory):
@@ -285,7 +285,7 @@ def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rat
     plt.legend(loc='upper right')
     plt.show()
 
-    directory = "../Image/MLP/"
+    directory = "../../Image/MLP/"
     file = "Eta" + str(learning_rate) + "batch" + str(batch_size) + "m" + str(momentum) + "epochs" + str(
         epochs) + ".png"
     if not exists(directory):

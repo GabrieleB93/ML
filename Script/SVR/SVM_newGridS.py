@@ -1,9 +1,7 @@
-from os.path import exists
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
-from config import *
 from utils import *
 
 
@@ -18,19 +16,9 @@ def main():
         C_POLY = int(data_POLY.sort_values('mee').iloc[0]['C'])
 
         C_range_RBF = getIntervalHyperP(data_RBF, 'C')
-        C_range_POLY = getIntervalHyperP(data_POLY, 'C')
         gamma_range_RBF = getIntervalHyperP(data_RBF, 'gamma')
 
-        X, Y = getTrainData(CUP, '1:11', '11:14', ',')
-
-        print(epsilon_POLY)
-        # print(epsilon_RBF)
-        print(degree)
-        print(C_POLY)
-
-        # print(C_range_POLY)
-        # print(C_range_RBF)
-        # print(gamma_range_RBF)
+        X, Y = getTrainData(CUP, '1:11', '11:13', ',')
 
         # Pipeline per SVR multiOutput
         SVR_RBF = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='rbf')))])
@@ -57,8 +45,8 @@ def main():
 
         # Start training and  eventually plot
         print("Start SVR grid with RBF")
-        # print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF_2',
-        #                    Type='SVR_RBF')
+        print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF_2',
+                           Type='SVR_RBF')
         print("Start SVR grid with POLY")
         print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=False, nameResult='grid_search_result_SVR_POLY_2',
                            Type='SVR_POLY')

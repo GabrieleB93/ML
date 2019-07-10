@@ -1,5 +1,4 @@
 from sklearn.multioutput import MultiOutputRegressor
-from config import *
 from utils import *
 from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
@@ -9,9 +8,6 @@ C = [0.1, 1, 10, 100]
 gamma = [0.001, 0.01, 0.1, 1, 10, 100]
 epsilon = [0.001, 0.01]
 degree = [2, 3, 4, 5]
-
-
-# gamma_poly = [0.01, 0.1]
 
 
 def main():
@@ -37,7 +33,7 @@ def main():
 
     # Start training and  eventually plot
     print("Start SVR grid with RBF")
-    # print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF.csv', Type='SVR_RBF')
+    print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF.csv', Type='SVR_RBF')
     print("Start SVR grid with POLY")
     print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_POLY_TMP',
                        Type='SVR_POLY')
