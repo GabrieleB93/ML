@@ -195,6 +195,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
 def saveOnCSV(results_records, nameResult):
     results = pd.DataFrame(data=results_records)
+    results = results.sort_values('mee', ascending=True)
     filepath = "../DATA/" + nameResult + ".csv"
     file = open(filepath, mode='a+')
     results.to_csv(file, sep=',', header=True, index=False)
