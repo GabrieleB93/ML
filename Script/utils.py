@@ -98,7 +98,12 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                                'coef0': [],
                                'validation_loss': [], 'mee': []}
         elif Type == 'RFR':
-            results_records = {'n_estimators': [], 'max_depth': [], 'min_samples_split': [], 'validation_loss': [],
+            results_records = {'n_estimators': [], 'max_depth': [], 'min_samples_split': [],
+                               'min_samples_leaf':[],
+                               'bootstrap':[],
+                               'random_state':[],
+                               'min_impurity_decrease':[],
+                               'validation_loss': [],
                                'mee': []}
             splitPlot = ['min_samples_split']
             pivot2 = 'max_depth'
@@ -150,6 +155,10 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['n_estimators'].append(param['n_estimators'])
                 results_records['max_depth'].append(param['max_depth'])
                 results_records['min_samples_split'].append(param['min_samples_split'])
+                results_records['min_samples_leaf'].append(param['min_samples_leaf'])
+                results_records['bootstrap'].append(param['bootstrap'])
+                results_records['random_state'].append(param['random_state'])
+                results_records['min_impurity_decrease'].append(param['min_impurity_decrease'])
 
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)

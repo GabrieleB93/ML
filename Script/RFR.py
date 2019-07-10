@@ -20,7 +20,12 @@ def rfr_model(x, y):  # Perform Grid-Search
             param_grid={
                 'max_depth': range(2, 10),
                 'n_estimators': (10, 50, 100, 1000),
-                'min_samples_split': [2]
+                'min_samples_split': [2,3,4],
+                'min_samples_leaf': [1,2,3],
+                'bootstrap': [True],
+                'random_state': range(1,3),
+                'min_impurity_decrease': [0., 1.],
+
             },
             cv=3, scoring=scoring, verbose=0, n_jobs=-1, refit=False)
 
