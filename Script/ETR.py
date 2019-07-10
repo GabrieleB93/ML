@@ -5,12 +5,10 @@ from sklearn.preprocessing import MinMaxScaler
 from utils import *
 from sklearn.preprocessing import StandardScaler
 
-Predict = False
-CV = False
-GRID = True
+Predict = True
+CV = True
+GRID = False
 Plot = 'OLD'
-
-
 # Plot = 'NEW'
 
 
@@ -18,16 +16,16 @@ def rfr_model(x, y):  # Perform Grid-Search
 
     if GRID:
         gsc = GridSearchCV(
-            estimator=RandomForestRegressor(criterion='mse'),
+            estimator=ExtraTreesRegressor(criterion='mse',min_samples_split=5 ),
             param_grid={
-                'max_depth': range(1, 11),
+                'max_depth': range(9, 10),
                 'n_estimators': (10, 50, 100, 500, 1000),
                 # 'n_estimators': (10,50),
-                'min_samples_split': [1, 2, 3, 4, 5],
+                # 'min_samples_split': [2,3,4],
                 # 'min_samples_leaf': [1,2,3],
-                'bootstrap': [True],
+                'bootstrap': [False],
                 # 'random_state': [1],
-                'max_features': [10, 3],
+                'max_features': [10,3],
                 # 'min_impurity_decrease': [0., 1.],
 
             },
@@ -35,17 +33,17 @@ def rfr_model(x, y):  # Perform Grid-Search
 
         grid_result = gsc.fit(x, y)
         best_params = grid_result
-        print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR', 'RFR')
+        print_and_saveGrid(grid_result, True, False, 'grid_search_result_ETR', 'ETR')
         # print(best_params)
         # print(grid_result.cv_results_['mean_test_score'])
         print(grid_result.cv_results_['mean_test_mee'])
         print(grid_result.cv_results_['mean_test_loss'])
         print(grid_result.cv_results_['params'])
 
-    if exists(THIRD_GRID_RFR):
+    if exists(FIRST_GRID_ETR):
 
         print("IN BEOFRE CROSS")
-        data = pd.read_csv(THIRD_GRID_RFR, sep=',', index_col=False)
+        data = pd.read_csv(FIRST_GRID_ETR, sep=',', index_col=False)
 
         best_row = data[data.mee == data.mee.min()]
         max_depth = int(best_row.iloc[0]['max_depth'])
@@ -60,10 +58,10 @@ def rfr_model(x, y):  # Perform Grid-Search
             result = False
 
         rfr = ExtraTreesRegressor(max_depth=max_depth, n_estimators=n_estimators,
-                                  # min_samples_split=min_samples_split,
-                                  max_features=max_features,
-                                  bootstrap=bootstrap,
-                                  random_state=False, verbose=False, oob_score=result)
+                                    # min_samples_split=min_samples_split,
+                                    max_features=max_features,
+                                    bootstrap=bootstrap,
+                                    random_state=False, verbose=False, oob_score=result)
 
         print(best_row)
         if CV:
@@ -75,7 +73,7 @@ def rfr_model(x, y):  # Perform Grid-Search
             train_sizes, train_scores, test_scores = learning_curve(
                 rfr, x, y, cv=3, n_jobs=-1
                 # , scoring=make_scorer(mean_euclidean_error)
-                , scoring='neg_mean_squared_error'
+                # , scoring='neg_mean_squared_error'
             )
 
             print("TRAIN")
