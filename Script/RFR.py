@@ -23,7 +23,7 @@ def rfr_model(x, y):  # Perform Grid-Search
                 'max_depth': range(1, 11),
                 'n_estimators': (10, 50, 100, 500, 1000),
                 # 'n_estimators': (10,50),
-                'min_samples_split': [1, 2, 3, 4, 5],
+                'min_samples_split': [2, 3, 4, 5],
                 # 'min_samples_leaf': [1,2,3],
                 'bootstrap': [True],
                 # 'random_state': [1],

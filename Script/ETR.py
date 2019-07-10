@@ -5,9 +5,9 @@ from sklearn.preprocessing import MinMaxScaler
 from utils import *
 from sklearn.preprocessing import StandardScaler
 
-Predict = True
-CV = True
-GRID = False
+Predict = False
+CV = False
+GRID = True
 Plot = 'OLD'
 # Plot = 'NEW'
 
@@ -16,16 +16,16 @@ def rfr_model(x, y):  # Perform Grid-Search
 
     if GRID:
         gsc = GridSearchCV(
-            estimator=ExtraTreesRegressor(criterion='mse',min_samples_split=5 ),
+            estimator=ExtraTreesRegressor(criterion='mse' ),
             param_grid={
-                'max_depth': range(9, 10),
+                'max_depth': range(1, 11),
                 'n_estimators': (10, 50, 100, 500, 1000),
                 # 'n_estimators': (10,50),
-                # 'min_samples_split': [2,3,4],
+                'min_samples_split': [2, 3, 4, 5],
                 # 'min_samples_leaf': [1,2,3],
                 'bootstrap': [False],
                 # 'random_state': [1],
-                'max_features': [10,3],
+                'max_features': [10, 3],
                 # 'min_impurity_decrease': [0., 1.],
 
             },
