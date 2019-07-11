@@ -1,13 +1,12 @@
-from sklearn.model_selection import cross_validate, GridSearchCV
-from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import learning_curve
-from sklearn.preprocessing import MinMaxScaler
 from utils import *
-from sklearn.preprocessing import StandardScaler
+import sys
 
 Predict = False
 CV = False
-GRID = True
+GRID = False
 Plot = 'OLD'
 
 
@@ -42,10 +41,10 @@ def rfr_model(x, y):  # Perform Grid-Search
         print(grid_result.cv_results_['mean_test_loss'])
         print(grid_result.cv_results_['params'])
 
-    if exists(THIRD_GRID_RFR):
+    if exists(FIRST_GRID_RFR):
 
         print("IN BEOFRE CROSS")
-        data = pd.read_csv(THIRD_GRID_RFR, sep=',', index_col=False)
+        data = pd.read_csv(FIRST_GRID_RFR, sep=',', index_col=False)
 
         best_row = data[data.mee == data.mee.min()]
         max_depth = int(best_row.iloc[0]['max_depth'])
@@ -59,11 +58,11 @@ def rfr_model(x, y):  # Perform Grid-Search
         else:
             result = False
 
-        rfr = ExtraTreesRegressor(max_depth=max_depth, n_estimators=n_estimators,
-                                  # min_samples_split=min_samples_split,
-                                  max_features=max_features,
-                                  bootstrap=bootstrap,
-                                  random_state=False, verbose=False, oob_score=result)
+        rfr = RandomForestRegressor(max_depth=max_depth, n_estimators=n_estimators,
+                                    # min_samples_split=min_samples_split,
+                                    max_features=max_features,
+                                    bootstrap=bootstrap,
+                                    random_state=False, verbose=False, oob_score=result)
 
         print(best_row)
         if CV:
@@ -123,6 +122,29 @@ def rfr_model(x, y):  # Perform Grid-Search
     # print(scores)
 
 
-X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+def parseArg(arg):
+    if arg.lower() == 'grid':
+        global GRID
+        GRID = True
+    elif arg.lower() == 'cv':
+        global CV
+        CV = True
+    elif arg.lower() == 'predict':
+        global Predict
+        Predict = True
+    else:
+        sys.exit("Argument not recognized")
 
-rfr_model(X, Y)
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        sys.exit("Need 1 argument")
+    else:
+        arg = sys.argv[1]
+        parseArg(arg)
+        print(arg)
+        print(CV)
+
+        X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+        rfr_model(X, Y)

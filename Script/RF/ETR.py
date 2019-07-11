@@ -4,11 +4,14 @@ from sklearn.model_selection import learning_curve
 from sklearn.preprocessing import MinMaxScaler
 from utils import *
 from sklearn.preprocessing import StandardScaler
+import sys
 
 Predict = False
-CV = False
-GRID = True
+GRID = False
 Plot = 'OLD'
+CV = False
+
+
 # Plot = 'NEW'
 
 
@@ -16,7 +19,7 @@ def rfr_model(x, y):  # Perform Grid-Search
 
     if GRID:
         gsc = GridSearchCV(
-            estimator=ExtraTreesRegressor(criterion='mse' ),
+            estimator=ExtraTreesRegressor(criterion='mse'),
             param_grid={
                 'max_depth': range(1, 11),
                 'n_estimators': (10, 50, 100, 500, 1000),
@@ -58,10 +61,10 @@ def rfr_model(x, y):  # Perform Grid-Search
             result = False
 
         rfr = ExtraTreesRegressor(max_depth=max_depth, n_estimators=n_estimators,
-                                    # min_samples_split=min_samples_split,
-                                    max_features=max_features,
-                                    bootstrap=bootstrap,
-                                    random_state=False, verbose=False, oob_score=result)
+                                  # min_samples_split=min_samples_split,
+                                  max_features=max_features,
+                                  bootstrap=bootstrap,
+                                  random_state=False, verbose=False, oob_score=result)
 
         print(best_row)
         if CV:
@@ -110,7 +113,7 @@ def rfr_model(x, y):  # Perform Grid-Search
             # print(scores)
 
         if Predict:
-            X = pd.read_csv("../DATA/ML-CUP18-TS.csv", comment='#', header=None)
+            X = pd.read_csv("../../DATA/ML-CUP18-TS.csv", comment='#', header=None)
 
             y = rfr.fit(x, y).predict(X.iloc[:, 1:11])
 
@@ -118,9 +121,31 @@ def rfr_model(x, y):  # Perform Grid-Search
             plt.plot(y[:, 0], y[:, 1], 'ro')
             plt.show()
 
-    # print(scores)
+        # print(scores)
 
 
-X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+def parseArg(arg):
+    if arg.lower() == 'grid':
+        global GRID
+        GRID = True
+    elif arg.lower() == 'cv':
+        global CV
+        CV = True
+    elif arg.lower() == 'predict':
+        global Predict
+        Predict = True
+    else:
+        sys.exit("Argument not recognized")
 
-rfr_model(X, Y)
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        sys.exit("Need 1 argument")
+    else:
+        arg = sys.argv[1]
+        parseArg(arg)
+        print(arg)
+        print(CV)
+        X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+        rfr_model(X, Y)
