@@ -19,6 +19,9 @@ def main():
         gamma_range_RBF = getIntervalHyperP(data_RBF, 'gamma')
 
         X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+        scaler = StandardScaler()
+        scaler.fit(X)
+        X = scaler.transform(X)
 
         # Pipeline per SVR multiOutput
         SVR_RBF = Pipeline([('reg', MultiOutputRegressor(SVR(verbose=True, kernel='rbf')))])
