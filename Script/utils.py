@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from os.path import exists
 from os import makedirs
+
+from sklearn.preprocessing import StandardScaler
+
 from config import *
 from keras import regularizers
 
@@ -24,25 +27,35 @@ def getTrainData(data_path, DimX, DimY, sep):
     return X, Y
 
 
-# Model for NN
-def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0, activation='relu', lamda=0):
+def getBlindData():
+    data = pd.read_csv(BLIND_DATA, header=None, sep=',', comment='#')
+    print(data.shape)
+    X = np.array(data.iloc[:, 1:11])
 
+    return X
+
+
+# Model for NN
+def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0,
+                 activation='relu', lamda=0):
     print(units)
     print(level)
 
     model = Sequential()
     # model.add(Dropout(0.2, input_shape=(10,)))
-    model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l1(lamda),
-                    bias_initializer='zeros', use_bias=True))
+    model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l2(lamda),
+                    # bias_initializer='zeros',
+                    use_bias=True))
 
     for l in range(level - 1):
         # model.add(Dropout(0.2))
         # model.add(Dense(units=units, input_dim=10, activation='relu'))
-        model.add(Dense(units=units, activation=activation, kernel_regularizer=regularizers.l1(lamda),
-                        bias_initializer='zeros', use_bias=True))
+        model.add(Dense(units=units, activation=activation, kernel_regularizer=regularizers.l2(lamda),
+                        # bias_initializer='zeros',
+                        use_bias=True))
 
     model.add(
-        Dense(output_dim, activation=activation, kernel_regularizer=regularizers.l1(lamda), bias_initializer='zeros',
+        Dense(output_dim, activation='linear', kernel_regularizer=regularizers.l2(lamda), bias_initializer='zeros',
               use_bias=True))
 
     optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=decay)
@@ -101,8 +114,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             results_records = {'n_estimators': [], 'max_depth': [],
                                'min_samples_split': [],
                                # 'min_samples_leaf':[],
-                               'max_features':[],
-                               'bootstrap':[],
+                               'max_features': [],
+                               'bootstrap': [],
                                # 'random_state':[],
                                # 'min_impurity_decrease':[],
                                'validation_loss': [],
@@ -111,8 +124,8 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             results_records = {'n_estimators': [], 'max_depth': [],
                                'min_samples_split': [],
                                # 'min_samples_leaf':[],
-                               'max_features':[],
-                               'bootstrap':[],
+                               'max_features': [],
+                               'bootstrap': [],
                                # 'random_state':[],
                                # 'min_impurity_decrease':[],
                                'validation_loss': [],
@@ -120,9 +133,10 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             splitPlot = ['random_state']
             pivot2 = 'max_depth'
             pivot1 = 'n_estimators'
-        elif Type =='MONK':
-            results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [], 'decay': [],
-                               'momentum':[], 'lamda':[], 'activation':[],
+        elif Type == 'MONK':
+            results_records = {'n_layers': [], 'hidden_layers_size': [], 'batch_size': [], 'learning_rate': [],
+                               'decay': [],
+                               'momentum': [], 'lamda': [], 'activation': [],
                                'validation_loss': [], 'mee': []}
 
     for meanTRL, meanTL, meanTRM, meanTM, S0TL, S1TL, S2TL, S0TM, S1TM, S2TM, param in zip(meanTrainLoss, meanTestLoss,
@@ -138,7 +152,7 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
         if save:
             if Type == 'NN':
-                results_records ['n_layers'].append(param['level'])
+                results_records['n_layers'].append(param['level'])
                 results_records['hidden_layers_size'].append(param['units'])
                 results_records['batch_size'].append(param['batch_size'])
                 results_records['learning_rate'].append(param['learn_rate'])
@@ -195,10 +209,23 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
 
 def saveOnCSV(results_records, nameResult, Type):
     results = pd.DataFrame(data=results_records)
-    results = results.sort_values('mee', ascending=True)
     filepath = "../../DATA/" + Type + "/" + nameResult + ".csv"
-    file = open(filepath, mode='w')
+    file = open(filepath, mode='w+')
+    results = results.sort_values('mee', ascending=True)
     results.to_csv(file, sep=',', header=True, index=False)
+    file.close()
+
+
+def saveResultsOnCSV(results_records, nameResult):
+    results = pd.DataFrame(data=results_records)
+    filepath = "../DATA/RESULTS/" + nameResult + ".csv"
+    file = open(filepath, mode='w+')
+    file.write('# Barreca Gabriele, Bertoncini Gioele\n')
+    file.write('# BarBer\n')
+    file.write('# ML-CUP18\n')
+    file.write('# 15/07/2019\n')
+    results.index +=1
+    results.to_csv(file, sep=',', header=False, index=True)
     file.close()
 
 
@@ -216,7 +243,7 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
             plt.title(title)
             plt.show()
 
-            directory = "../../Image/"+Type+"/"
+            directory = "../../Image/" + Type + "/"
             t = strftime("%H_%M")
             file = title.replace(" ", "_") + Type + t + ".png"
             if not os.path.exists(directory):
@@ -281,7 +308,7 @@ def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rat
 
     plt.plot(history.history['loss'], label="TR Loss")
     plt.plot(history.history['val_loss'], label="VL Loss", linestyle='dashed')
-    plt.ylim((0, 5))
+    plt.ylim((0, 2))
     plt.legend(loc='upper right')
     plt.show()
 

@@ -4,14 +4,17 @@ from utils import *
 from config import *
 
 # Variabili
-learn_rate = [0.0001, 0.001, 0.0002]
+learn_rate = [0.0001, 0.001]
 units = [100, 500]
 level = [1, 3, 5]
 epochs = 5000
 
 
 def main():
-    X, Y = getTrainData(CUP,  '1:11', '11:14', ',')
+    X, Y = getTrainData(CUP_NEW,  '1:11', '11:13', ',')
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X = scaler.transform(X)
     batch_size = [X.shape[0], 64, 128]
     print(X.shape[0])
 
