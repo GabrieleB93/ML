@@ -34,7 +34,7 @@ def rfr_model(x, y):  # Perform Grid-Search
 
         grid_result = gsc.fit(x, y)
         best_params = grid_result
-        print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR', 'RFR')
+        print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR_BEST', 'RFR')
         # print(best_params)
         # print(grid_result.cv_results_['mean_test_score'])
         print(grid_result.cv_results_['mean_test_mee'])
@@ -44,7 +44,7 @@ def rfr_model(x, y):  # Perform Grid-Search
     if exists(FIRST_GRID_RFR):
 
         print("IN BEOFRE CROSS")
-        data = pd.read_csv(FIRST_GRID_RFR, sep=',', index_col=False)
+        data = pd.read_csv('../../DATA/RFR/grid_search_result_RFR_BEST.csv', sep=',', index_col=False)
 
         best_row = data[data.mee == data.mee.min()]
         max_depth = int(best_row.iloc[0]['max_depth'])
@@ -52,6 +52,7 @@ def rfr_model(x, y):  # Perform Grid-Search
         bootstrap = best_row.iloc[0]['bootstrap']
         max_features = int(best_row.iloc[0]['max_features'])
         min_samples_split = int(best_row.iloc[0]['min_samples_split'])
+        max_leaf = 60
 
         if bootstrap:
             result = True
@@ -62,7 +63,7 @@ def rfr_model(x, y):  # Perform Grid-Search
                                     min_samples_split=min_samples_split,
                                     max_features=max_features,
                                     bootstrap=bootstrap,
-                                    max_leaf_nodes=None,
+                                    max_leaf_nodes=max_leaf,
                                     random_state=False, verbose=False, oob_score=result)
 
         print(best_row)
@@ -107,7 +108,7 @@ def rfr_model(x, y):  # Perform Grid-Search
 
                 directory = "../../Image/RFR/"
                 t = strftime("%H_%M")
-                file = "RFR_LC"+t+".png"
+                file = "RFR_LC_" +str(max_leaf) + "_" + t + ".png"
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 fig.savefig(directory + file)
@@ -155,7 +156,7 @@ if __name__ == '__main__':
         print(arg)
         print(CV)
 
-        X, Y = getTrainData(CUP_NEW, '1:11', '11:13', ',')
+        X, Y = getTrainData('../../DATA/training_set_BEST.csv', '1:11', '11:13', ',')
         scaler = StandardScaler()
         scaler.fit(X)
         X = scaler.transform(X)
