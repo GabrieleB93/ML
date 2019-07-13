@@ -36,6 +36,7 @@ In the folder we can find the following scripts:
 * Script/RF/RFR.py = it implements the grid search and evaluation of a Random Forest Regressor.
 * Script/SVR/SVM.py = it implements the first grid search for two kind of Support Vector Regressor: Polynomial and RBF.
 * Script/SVR/SVM_newGridS.py = it implements the second grid search for the optimization for both type of SVR. 
+* Script/Test.py = script for assessment and predict
 * Script/utils.py = a script containing all support functions.
 * Script/config.py = a support script that stores global variables like Path and Score function.
 * Script/split_data.py = a support script to generate the training and test set.
@@ -43,23 +44,23 @@ In the folder we can find the following scripts:
 ### MLP
 To make the grid search to study the behaviors on different architectures, we need to launch the script:
 ```
-MPLGridSearch.py -> DATA/NN/grid_search_result_MLP.csv
+python3 MPLGridSearch.py -> DATA/NN/grid_search_result_MLP.csv
 ```
-This will produce a CSV file with the table and it will be necessary for the second script, that will take the best result and it will plot the learning curve e start a new grid search:
+This will produce a CSV file with the table and it will be necessary for the second script, that will take the best result and it will plot the learning curve and start a new grid search:
 ```
-MPL_newValidation.py -> Image/NN/Eta0.001batch64m0.9epochs5000.png and DATA/NN/grid_search_result_MLP_500u.csv
+python3 MPL_newValidation.py -> Image/NN/Eta0.001batch64m0.9epochs5000.png and DATA/NN/grid_search_result_MLP_500u.csv
 ```
 
 ### SVM
 The two different type of SVR are performed together on Gamma,degree and C (with orders of different sizes). We need to launch the script:
 ```
-SVM.py -> DATA/SVR_POLY/grid_search_result_SVR_POLY.csv and DATA/SVR_RBF/grid_search_result_SVR_RBF.csv
-       -> Image/SVR_RBF/epsilon_0.01_with_meeSVR_RBF10_56.png and Image/SVR_POLY/epsilon_0.01_with_meeSVR_POLY16_56.png
+python3 SVM.py -> DATA/SVR_POLY/grid_search_result_SVR_POLY.csv and DATA/SVR_RBF/grid_search_result_SVR_RBF.csv
+               -> Image/SVR_RBF/epsilon_0.01_with_meeSVR_RBF10_56.png and Image/SVR_POLY/epsilon_0.01_with_meeSVR_POLY16_56.png
 ```
 To run the second script we need the csv, for both models, with the result of the first one. The following script
 ```
-SVM_newGridS.py ->DATA/SVR_POLY/grid_search_result_SVR_POLY2.csv and DATA/SVR_RBF/grid_search_result_SVR_RBF2.csv
-                -> Image/SVR_RBF/epsilon_0.01_with_meeSVR_RBF10_56.png and Image/SVR_POLY/epsilon_0.01_with_meeSVR_POLY16_56.png
+python3 SVM_newGridS.py -> DATA/SVR_POLY/grid_search_result_SVR_POLY2.csv and DATA/SVR_RBF/grid_search_result_SVR_RBF2.csv
+                        -> Image/SVR_RBF/epsilon_0.01_with_meeSVR_RBF10_56.png and Image/SVR_POLY/epsilon_0.01_with_meeSVR_POLY16_56.png
 ```
  will produce new results by taking the best two different architecture and generate an interval of values where run a new grid search.
  
@@ -67,13 +68,25 @@ SVM_newGridS.py ->DATA/SVR_POLY/grid_search_result_SVR_POLY2.csv and DATA/SVR_RB
 For these two models there are only two scripts, one for each one, and each of them need an argument to run:
 
 ```
-RFR.py -i grid      -> DATA/RFR/grid_search_result_RFR.csv
-ETR.py -i grid      -> DATA/ETR/grid_search_result_ETR.csv
-RFR.py -i cv        -> evaluation
-ETR.py -i cv        -> evaluation
-RFR.py -i predict   -> DATA/Results/blind_RFR.csv
-ETR.py -i predict   -> DATA/Results/blind_ETR.csv
+python3 RFR.py -i grid      -> DATA/RFR/grid_search_result_RFR.csv
+python3 ETR.py -i grid      -> DATA/ETR/grid_search_result_ETR.csv
+python3 RFR.py -i cv        -> evaluation
+python3 ETR.py -i cv        -> evaluation
+python3 RFR.py -i predict   -> DATA/Results/blind_RFR.csv
+python3 ETR.py -i predict   -> DATA/Results/blind_ETR.csv
 ```
 If the given argument is 'grid', it will be run a grid search and save the results on a CSV file.
 If the given argument is 'cv' and the CSV file with results exists, the best model it will be evaluated with a k-fold cross validation.
 If the given argument is 'predict', the best model will train on the full dataset and it will predict the solution for the CUP.
+
+### Test and Blind
+At least, for evaluate each model it's necessary to run the following script:
+
+```
+python3 Test.py 
+```
+It will produce the MEE error for the best NN model, the best SVM model and the best RF model. Instead, if you want to 
+predict the data for the ML CUP with the model that won the model selection, just add the argument 'predict' as follow:
+```
+python3 Test.py predict
+```
