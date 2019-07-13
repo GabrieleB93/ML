@@ -7,11 +7,11 @@ from sklearn.model_selection import GridSearchCV
 C = [0.1, 1, 10, 100]
 gamma = [0.001, 0.01, 0.1, 1, 10, 100]
 epsilon = [0.001, 0.01]
-degree = [2, 3, 4, 5]
+degree = [2, 3, 4, 5, 6]
 
 
 def main():
-    X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+    X, Y = getTrainData('../../DATA/training_set_BEST.csv', '1:11', '11:13', ',')
     scaler = StandardScaler()
     scaler.fit(X)
     X = scaler.transform(X)
@@ -36,9 +36,9 @@ def main():
 
     # Start training and  eventually plot
     print("Start SVR grid with RBF")
-    print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF', Type='SVR_RBF')
+    print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF_BEST', Type='SVR_RBF')
     print("Start SVR grid with POLY")
-    print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_POLY',
+    print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_POLY_BEST',
                        Type='SVR_POLY')
 
 
