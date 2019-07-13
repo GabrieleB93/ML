@@ -34,7 +34,7 @@ def rfr_model(x, y):  # Perform Grid-Search
 
         grid_result = gsc.fit(x, y)
         best_params = grid_result
-        print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR', 'RFR')
+        print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR_BEST', 'RFR')
         # print(best_params)
         # print(grid_result.cv_results_['mean_test_score'])
         print(grid_result.cv_results_['mean_test_mee'])
@@ -44,14 +44,14 @@ def rfr_model(x, y):  # Perform Grid-Search
     if exists(FIRST_GRID_RFR):
 
         print("IN BEOFRE CROSS")
-        data = pd.read_csv(FIRST_GRID_RFR, sep=',', index_col=False)
+        data = pd.read_csv('../../DATA/RFR/grid_search_result_RFR_BEST.csv', sep=',', index_col=False)
 
         best_row = data[data.mee == data.mee.min()]
         max_depth = int(best_row.iloc[0]['max_depth'])
         n_estimators = int(best_row.iloc[0]['n_estimators'])
         bootstrap = best_row.iloc[0]['bootstrap']
         max_features = int(best_row.iloc[0]['max_features'])
-        # min_samples_split = int(best_row.iloc[0]['min_samples_split'])
+        min_samples_split = int(best_row.iloc[0]['min_samples_split'])
 
         if bootstrap:
             result = True
@@ -59,7 +59,7 @@ def rfr_model(x, y):  # Perform Grid-Search
             result = False
 
         rfr = RandomForestRegressor(max_depth=max_depth, n_estimators=n_estimators,
-                                    # min_samples_split=min_samples_split,
+                                    min_samples_split=min_samples_split,
                                     max_features=max_features,
                                     bootstrap=bootstrap,
                                     random_state=False, verbose=False, oob_score=result)
@@ -111,7 +111,7 @@ def rfr_model(x, y):  # Perform Grid-Search
             # print(scores)
 
         if Predict:
-            X = pd.read_csv("../DATA/ML-CUP18-TS.csv", comment='#', header=None)
+            X = pd.read_csv("../../DATA/ML-CUP18-TS.csv", comment='#', header=None)
 
             y = rfr.fit(x, y).predict(X.iloc[:, 1:11])
 
@@ -146,5 +146,8 @@ if __name__ == '__main__':
         print(arg)
         print(CV)
 
-        X, Y = getTrainData(CUP, '1:11', '11:13', ',')
+        X, Y = getTrainData('../../DATA/training_set_BEST.csv', '1:11', '11:13', ',')
+        scaler = StandardScaler()
+        scaler.fit(X)
+        X = scaler.transform(X)
         rfr_model(X, Y)
