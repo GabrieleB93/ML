@@ -1,0 +1,3 @@
+In this report we compare the performances of the regression of three models: MLP, SVM and Random Forest Regressor.
+We found that the MLP is very much slower than the other models and that the Extremely Randomized Trees
+(a more randomized variation of Random Forest) perform better than the other models while being also very fast.

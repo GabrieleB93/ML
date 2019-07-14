@@ -28,9 +28,8 @@ Before seeing what kind of tests we can do, let's see which other component we c
 
 ### Scripts
 In the folder we can find the following scripts:
-* Script/MLP/MPLGridSearch.py = script for the first grid search about a Multi Layer Perception.
-* Script/MLP/MPL_newValidation.py = script for the second grid search for the optimization of the MLP.
-* Script/MLP/MPL_newValidation2.py = script for the first grid search about a Multi Layer Perception.
+* Script/MLP/NNGridSearch.py = script for the first grid search about a Multi Layer Perception.
+* Script/MLP/MPL_newValidation.py = script for the optimization of the MLP.
 * Script/MONK/Monk.py = the script implements the grid search and the evaluation of A MLP for the Monk problems.
 * Script/RF/ETR.py = it implements the grid search and evaluation of a Extremely Random Tree.
 * Script/RF/RFR.py = it implements the grid search and evaluation of a Random Forest Regressor.
@@ -39,16 +38,20 @@ In the folder we can find the following scripts:
 * Script/Test.py = script for assessment and predict
 * Script/utils.py = a script containing all support functions.
 * Script/config.py = a support script that stores global variables like Path and Score function.
-* Script/split_data.py = a support script to generate the training and test set.
+* Script/split_data.py = a support script to generate the training and test set. If argument is 'new', it will generate a new training and validation set from the first training set.
 
 ### MLP
 To make the grid search to study the behaviors on different architectures, we need to launch the script:
 ```
-python3 MPLGridSearch.py -> DATA/NN/grid_search_result_MLP.csv
+python3 NNGridSearch.py -> DATA/NN/grid_search_result_MLP.csv
 ```
-This will produce a CSV file with the table and it will be necessary for the second script, that will take the best result and it will plot the learning curve and start a new grid search:
+This will produce a CSV file with the table and it will be necessary for the second script, that will take the best result and it will plot the learning curve:
 ```
-python3 MPL_newValidation.py -> Image/NN/Eta0.001batch64m0.9epochs5000.png and DATA/NN/grid_search_result_MLP_500u.csv
+python3 MPL_newValidation.py -> Image/NN/Eta0.001batch64m0.9epochs5000.png
+```
+The learning curve is made from a different training and validation set (to do a "sub-model selection"). The parameter change is manual. If you want to make a CrossValidation on the model selected, type the following:
+```
+python3 MPL_newValidation.py cv
 ```
 
 ### SVM

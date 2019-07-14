@@ -1,7 +1,7 @@
-import numpy as np
+import sys
 import pandas as pd
 from keras import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers import Dense
 from keras.optimizers import SGD
 import os
 from time import strftime
@@ -9,12 +9,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from os.path import exists
 from os import makedirs
-
-from sklearn.preprocessing import StandardScaler
-
 from config import *
 from keras import regularizers
 
+
+# ---------------------- FROM AND TO CSV -------------------------------------------------------------------------------
 
 def getTrainData(data_path, DimX, DimY, sep):
     startX, endX = DimX.split(':')
@@ -35,6 +34,57 @@ def getBlindData():
     return X
 
 
+def saveOnCSV(results_records, nameResult, Type):
+    results = pd.DataFrame(data=results_records)
+    filepath = "../../DATA/" + Type + "/" + nameResult + ".csv"
+    file = open(filepath, mode='w+')
+    if Type.lower() != 'monk':
+        results = results.sort_values('mee', ascending=True)
+    results.to_csv(file, sep=',', header=True, index=False)
+    file.close()
+
+
+def saveResultsOnCSV(results_records, nameResult):
+    results = pd.DataFrame(data=results_records)
+    filepath = "../DATA/RESULTS/" + nameResult + ".csv"
+    file = open(filepath, mode='w+')
+    file.write('# Barreca Gabriele, Bertoncini Gioele\n')
+    file.write('# BarBer\n')
+    file.write('# ML-CUP18\n')
+    file.write('# 15/07/2019\n')
+    results.index += 1
+    results.to_csv(file, sep=',', header=False, index=True)
+    file.close()
+
+
+def split_development_set(validation_perc):
+    data = pd.read_csv(CUP, header=None, comment='#')
+
+    remove_n = int(len(data.index) / validation_perc)
+
+    drop_ind = np.random.choice(data.index, remove_n, replace=False)
+
+    val_set = data.iloc[drop_ind, :]
+
+    file = open(VAL_SET, mode='w')
+    val_set.to_csv(file, sep=',', header=False, index=False)
+
+    tr_set = data.drop(drop_ind)
+
+    file = open(TRAIN_SET, mode='w')
+    tr_set.to_csv(file, sep=',', header=False, index=False)
+
+    X_train, Y_train = getTrainData(TRAIN_SET, '1:11', '11:13', ',')
+    X_val, Y_val = getTrainData(VAL_SET, '1:11', '11:13', ',')
+
+    return X_train, Y_train, X_val, Y_val
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------- UTILS FOR NN -------------------------------------------------------------------
+
 # Model for NN
 def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5, momentum=0.9, decay=0,
                  activation='relu', lamda=0):
@@ -42,20 +92,22 @@ def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5
     print(level)
 
     model = Sequential()
-    # model.add(Dropout(0.2, input_shape=(10,)))
     model.add(Dense(units=units, input_dim=input_dim, activation=activation, kernel_regularizer=regularizers.l2(lamda),
                     # bias_initializer='zeros',
                     use_bias=True))
 
     for l in range(level - 1):
-        # model.add(Dropout(0.2))
-        # model.add(Dense(units=units, input_dim=10, activation='relu'))
         model.add(Dense(units=units, activation=activation, kernel_regularizer=regularizers.l2(lamda),
                         # bias_initializer='zeros',
                         use_bias=True))
 
+    if output_dim == 2:
+        actv = 'linear'
+    else:
+        actv = 'sigmoid'
+
     model.add(
-        Dense(output_dim, activation='linear', kernel_regularizer=regularizers.l2(lamda), bias_initializer='zeros',
+        Dense(output_dim, activation=actv, kernel_regularizer=regularizers.l2(lamda), bias_initializer='zeros',
               use_bias=True))
 
     optimizer = SGD(lr=learn_rate, momentum=momentum, nesterov=False, decay=decay)
@@ -65,9 +117,40 @@ def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5
     return model
 
 
+def one_of_k(data):
+    dist_values = np.array([np.unique(data[:, i]) for i in range(data.shape[1])])
+    new_data = []
+    First_rec = True
+    for record in data:
+        new_record = []
+        First = True
+        indice = 0
+        for attribute in record:
+            new_attribute = np.zeros(len(dist_values[indice]), dtype=int)
+            for j in range(len(dist_values[indice])):
+                if dist_values[indice][j] == attribute:
+                    new_attribute[j] += 1
+            if First:
+                new_record = new_attribute
+                First = False
+            else:
+                new_record = np.concatenate((new_record, new_attribute), axis=0)
+            indice += 1
+        if First_rec:
+            new_data = np.array([new_record])
+            First_rec = False
+        else:
+            new_data = np.concatenate((new_data, np.array([new_record])), axis=0)
+    return new_data
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------ PLOTS ---------------------------------------------------------------------------
+
 def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Type=None, ):
     # summarize results
-    # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     firstScore = 'loss'
     secondScore = 'mee'
 
@@ -113,21 +196,15 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
         elif Type == 'RFR':
             results_records = {'n_estimators': [], 'max_depth': [],
                                'min_samples_split': [],
-                               # 'min_samples_leaf':[],
                                'max_features': [],
                                'bootstrap': [],
-                               # 'random_state':[],
-                               # 'min_impurity_decrease':[],
                                'validation_loss': [],
                                'mee': []}
         elif Type == 'ETR':
             results_records = {'n_estimators': [], 'max_depth': [],
                                'min_samples_split': [],
-                               # 'min_samples_leaf':[],
                                'max_features': [],
                                'bootstrap': [],
-                               # 'random_state':[],
-                               # 'min_impurity_decrease':[],
                                'validation_loss': [],
                                'mee': []}
             splitPlot = ['random_state']
@@ -181,19 +258,13 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
                 results_records['n_estimators'].append(param['n_estimators'])
                 results_records['max_depth'].append(param['max_depth'])
                 results_records['min_samples_split'].append(param['min_samples_split'])
-                # results_records['min_samples_leaf'].append(param['min_samples_leaf'])
                 results_records['bootstrap'].append(param['bootstrap'])
-                # results_records['random_state'].append(param['random_state'])
-                # results_records['min_impurity_decrease'].append(param['min_impurity_decrease'])
                 results_records['max_features'].append(param['max_features'])
             elif Type == 'ETR':
                 results_records['n_estimators'].append(param['n_estimators'])
                 results_records['max_depth'].append(param['max_depth'])
                 results_records['min_samples_split'].append(param['min_samples_split'])
-                # results_records['min_samples_leaf'].append(param['min_samples_leaf'])
                 results_records['bootstrap'].append(param['bootstrap'])
-                # results_records['random_state'].append(param['random_state'])
-                # results_records['min_impurity_decrease'].append(param['min_impurity_decrease'])
                 results_records['max_features'].append(param['max_features'])
 
             results_records['validation_loss'].append(-meanTL)
@@ -205,28 +276,6 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
     if save:
         print(results_records)
         saveOnCSV(results_records, nameResult, Type)
-
-
-def saveOnCSV(results_records, nameResult, Type):
-    results = pd.DataFrame(data=results_records)
-    filepath = "../../DATA/" + Type + "/" + nameResult + ".csv"
-    file = open(filepath, mode='w+')
-    results = results.sort_values('mee', ascending=True)
-    results.to_csv(file, sep=',', header=True, index=False)
-    file.close()
-
-
-def saveResultsOnCSV(results_records, nameResult):
-    results = pd.DataFrame(data=results_records)
-    filepath = "../DATA/RESULTS/" + nameResult + ".csv"
-    file = open(filepath, mode='w+')
-    file.write('# Barreca Gabriele, Bertoncini Gioele\n')
-    file.write('# BarBer\n')
-    file.write('# ML-CUP18\n')
-    file.write('# 15/07/2019\n')
-    results.index +=1
-    results.to_csv(file, sep=',', header=False, index=True)
-    file.close()
 
 
 # Plot grid
@@ -251,49 +300,6 @@ def plotGrid(dataframe, splitData, pivot1, pivot2, pivot3, excluded, Type):
             fig.savefig(directory + file)
 
 
-def getIntervalHyperP(dataFrame, hyperp):
-    sorted = dataFrame.sort_values('mee')
-
-    best_row = dataFrame[dataFrame.mee == dataFrame.mee.min()]
-
-    start = best_row.iloc[0][hyperp]
-    end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
-
-    End = np.maximum(start, end)
-    Start = np.minimum(start, end)
-    print(Start)
-    print(End)
-    tmp = []
-    for x in np.arange(Start, (End + abs(End - Start) / 20), abs(End - Start) / 20):
-        tmp.append(float('%.3f' % x))
-
-    print(tmp)
-    return tmp
-
-
-def split_development_set(validation_perc):
-    data = pd.read_csv(CUP, header=None, comment='#')
-
-    remove_n = int(len(data.index) / validation_perc)
-
-    drop_ind = np.random.choice(data.index, remove_n, replace=False)
-
-    val_set = data.iloc[drop_ind, :]
-
-    file = open(VAL_SET, mode='w')
-    val_set.to_csv(file, sep=',', header=False, index=False)
-
-    tr_set = data.drop(drop_ind)
-
-    file = open(TRAIN_SET, mode='w')
-    tr_set.to_csv(file, sep=',', header=False, index=False)
-
-    X_train, Y_train = getTrainData(TRAIN_SET, '1:11', '11:14', ',')
-    X_val, Y_val = getTrainData(VAL_SET, '1:11', '11:14', ',')
-
-    return X_train, Y_train, X_val, Y_val
-
-
 def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rate, momentum, batch_size, epochs, lamda):
     print("Training with: lr=%f, batch size=%f, n layers=%f, units=%f, momentum=%f" % (
         learning_rate, batch_size, n_layers, n_units, momentum))
@@ -314,7 +320,52 @@ def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rat
 
     directory = "../../Image/MLP/"
     file = "Eta" + str(learning_rate) + "batch" + str(batch_size) + "m" + str(momentum) + "epochs" + str(
-        epochs) + ".png"
+        epochs) + "lamda" + str(lamda) + ".png"
     if not exists(directory):
         makedirs(directory)
     fig.savefig(directory + file)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------ UTILS FOR SVM -------------------------------------------------------------------
+
+def getIntervalHyperP(dataFrame, hyperp):
+    sorted = dataFrame.sort_values('mee')
+
+    best_row = dataFrame[dataFrame.mee == dataFrame.mee.min()]
+
+    start = best_row.iloc[0][hyperp]
+    end = sorted[sorted[hyperp] != float(best_row[hyperp])].iloc[0][hyperp]
+
+    End = np.maximum(start, end)
+    Start = np.minimum(start, end)
+    print(Start)
+    print(End)
+    tmp = []
+    for x in np.arange(Start, (End + abs(End - Start) / 20), abs(End - Start) / 20):
+        tmp.append(float('%.3f' % x))
+
+    print(tmp)
+    return tmp
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# --------------------------------------- UTILS FOR ALL ----------------------------------------------------------------
+
+def parseArg(arg):
+    if arg.lower() == 'grid':
+        global GRID
+        GRID = True
+    elif arg.lower() == 'cv':
+        global CV
+        CV = True
+    # elif arg.lower() == 'predict':
+    #     global Predict
+    #     Predict = True
+    else:
+        sys.exit("Argument not recognized")
+
+# ----------------------------------------------------------------------------------------------------------------------

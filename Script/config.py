@@ -8,18 +8,12 @@ Monk2TR = '../../DATA/MONK/monks-2.train'
 Monk3TS = '../../DATA/MONK/monks-3.test'
 Monk3TR = '../../DATA/MONK/monks-3.train'
 
-ALL_DATA = '../../DATA/ML-CUP18-TR.csv'
+ALL_DATA = '../DATA/ML-CUP18-TR.csv'
 BLIND_DATA = '../DATA/ML-CUP18-TS.csv'
 
-CUP = "../../DATA/training_set.csv"
-CUP_NEW = "../../DATA/training_set_NEW.csv"
-CUP_NEW2 = "../../DATA/training_set_NEW2.csv"
-CUP1 = "../DATA/training_set.csv"
-CUP1_NEW = "../DATA/training_set_NEW.csv"
-CUP1_NEW2 = "../../DATA/training_set_NEW2.csv"
-TEST_SET = "../DATA/test_set.csv"
-TEST_SET_NEW = "../DATA/test_set_NEW.csv"
-TEST_SET_NEW2 = "../../DATA/test_set_NEW2.csv"
+CUP = "../../DATA/TRAIN.csv"
+CUP1 = "../DATA/TRAIN.csv"
+TEST_SET = "../DATA/TEST.csv"
 
 TRAIN_SET = "../../DATA/tr_set.csv"
 VAL_SET = "../../DATA/val_set.csv"
@@ -34,7 +28,6 @@ FIRST_GRID_NN = "../../DATA/NN/grid_search_result_MPL.csv"
 SECOND_GRID_NN = "../../DATA/NN/grid_search_result_MPL2.csv"
 
 FIRST_GRID_RFR = "../../DATA/RFR/grid_search_result_RFR.csv"
-
 FIRST_GRID_ETR = "../../DATA/ETR/grid_search_result_ETR.csv"
 
 
