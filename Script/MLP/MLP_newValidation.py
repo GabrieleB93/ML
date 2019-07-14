@@ -1,13 +1,11 @@
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
-
 from utils import *
 from config import *
 
 
 def main():
-
     if exists(FIRST_GRID_NN):
 
         grid_result = pd.read_csv(FIRST_GRID_NN, sep=',', index_col=False)
@@ -22,16 +20,18 @@ def main():
         momentum = 0.9
         lamda = 0
 
+        # If there is no argument, use the tr_set and val_set to plot the curves
         if len(sys.argv) == 1:
-
             X_train, Y_train = getTrainData(TRAIN_SET, '1:11', '11:13', ',')
             X_val, Y_val = getTrainData(VAL_SET, '1:11', '11:13', ',')
 
+            # train the model and plot the learning curves
             train_and_plot_MLP(X_train, Y_train, X_val, Y_val, n_layers, hidden_layers_units, learning_rate, momentum,
                                batch, epochs, lamda)
 
+        # If the argument is 'CV', the model is Cross-validated with 3-Fold, through the GridSearchCV. Indeed, without
+        #  a list of parameters the function executes a standard k-fold cross validation
         if len(sys.argv) > 1 and sys.argv[1].lower() == 'cv':
-
             X, Y = getTrainData(CUP, '1:11', '11:13', ',')
             scaler = StandardScaler()
             scaler.fit(X)
@@ -43,6 +43,8 @@ def main():
                                 cv=3, scoring=make_scorer(mean_euclidean_error))
             result = grid.fit(X, Y)
             print(result.cv_results_['mean_test_mee'])
+    else:
+        print("Make grid search first")
 
 
 if __name__ == '__main__':
