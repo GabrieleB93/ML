@@ -2,13 +2,14 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 from utils import *
 
 
 def main():
     if exists(FIRST_GRID_POLY and FIRST_GRID_RBF):
-        data_RBF = pd.read_csv('../../DATA/SVR_RBF/grid_search_result_SVR_RBF_BEST.csv', sep=',', index_col=False)
-        data_POLY = pd.read_csv('../../DATA/SVR_POLY/grid_search_result_SVR_POLY_BEST.csv', sep=',', index_col=False)
+        data_RBF = pd.read_csv(FIRST_GRID_RBF, sep=',', index_col=False)
+        data_POLY = pd.read_csv(FIRST_GRID_POLY, sep=',', index_col=False)
 
         epsilon_RBF = data_RBF.sort_values('mee').iloc[0]['epsilon']
         epsilon_POLY = data_POLY.sort_values('mee').iloc[0]['epsilon']
@@ -18,7 +19,7 @@ def main():
         C_range_RBF = getIntervalHyperP(data_RBF, 'C')
         gamma_range_RBF = getIntervalHyperP(data_RBF, 'gamma')
 
-        X, Y = getTrainData('../../DATA/training_set_BEST.csv', '1:11', '11:13', ',')
+        X, Y = getTrainData(CUP, '1:11', '11:13', ',')
         scaler = StandardScaler()
         scaler.fit(X)
         X = scaler.transform(X)
@@ -48,10 +49,10 @@ def main():
 
         # Start training and  eventually plot
         print("Start SVR grid with RBF")
-        print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF_2_BEST',
+        print_and_saveGrid(mlt1.fit(X, Y), save=True, plot=True, nameResult='grid_search_result_SVR_RBF_2',
                            Type='SVR_RBF')
         print("Start SVR grid with POLY")
-        print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=False, nameResult='grid_search_result_SVR_POLY_2_BEST',
+        print_and_saveGrid(mlt2.fit(X, Y), save=True, plot=False, nameResult='grid_search_result_SVR_POLY_2',
                            Type='SVR_POLY')
 
     else:

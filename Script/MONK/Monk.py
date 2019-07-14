@@ -1,16 +1,16 @@
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+import category_encoders
 
-from config import *
 from utils import *
 
 Model1 = {'layer': 1, 'hidden_units': 7, 'learning_rate': 0.6, 'momentum': 0.9, 'decay': 0,
-          'epochs': 1000, 'batch': 32, 'activation': 'sigmoid', 'lamda': 0}
+          'epochs': 1000, 'activation': 'sigmoid', 'lamda': 0}
 
 Model2 = {'layer': 1, 'hidden_units': 7, 'learning_rate': 0.6, 'momentum': 0.9, 'decay': 0,
-          'epochs': 500, 'batch': 32, 'activation': 'tanh', 'lamda': 0}
+          'epochs': 500, 'activation': 'tanh', 'lamda': 0}
 
 Model3 = {'layer': 1, 'hidden_units': 7, 'learning_rate': 0.6, 'momentum': 0.6, 'lamda': 0.003,
-          'epochs': 500, 'batch': 1, 'activation': 'tanh', 'decay': 0}
+          'epochs': 1200, 'activation': 'tanh', 'decay': 0}
 
 Models = [Model1, Model2, Model3]
 
@@ -50,18 +50,13 @@ def main():
                           Model3['layer'], Model3['decay'], Model3['lamda'])
 
     history1 = model1.fit(XTR1, YTR1, shuffle=True, epochs=Model1['epochs'], verbose=2, batch_size=Model1['batch'],
-                          # validation_data=[XTS1, YTS1])
-                          validation_split=0.2)
+                          validation_data=[XTS1, YTS1])
+
     history2 = model2.fit(XTR2, YTR2, shuffle=True, epochs=Model2['epochs'], verbose=2, batch_size=Model2['batch'],
-                          validation_split=0.2)
-    history3 = model3.fit(XTR3, YTR3, shuffle=True, epochs=Model3['epochs'], verbose=2, batch_size=Model3['batch'],
-                          validation_split=0.2)
+                          validation_data=[XTS2, YTS2])
 
-    # history2 = model2.fit(XTR2, YTR2, shuffle=True, epochs=Model2['epochs'], verbose=2, batch_size=Model2['batch'],
-    #                       validation_data=[XTS2, YTS2])
-
-    # history3 = model3.fit(XTR3, YTR3, shuffle=True, epochs=Model3['epochs'], verbose=2, batch_size=XTR3.shape[0],
-    #                       validation_data=[XTS3, YTS3])
+    history3 = model3.fit(XTR3, YTR3, shuffle=True, epochs=Model3['epochs'], verbose=2, batch_size=XTR3.shape[0],
+                          validation_data=[XTS3, YTS3])
 
     print("Min loss:", min(history1.history['val_loss']))
     print("Min loss:", min(history2.history['val_loss']))
@@ -71,33 +66,7 @@ def main():
     printPlots(history2, True, 'Monk2')
     printPlots(history3, True, 'Monk3')
 
-    # printCSV([history1, history2, history3])
-
-def one_of_k(data):
-    dist_values = np.array([np.unique(data[:, i]) for i in range(data.shape[1])])
-    new_data = []
-    First_rec = True
-    for record in data:
-        new_record = []
-        First = True
-        indice = 0
-        for attribute in record:
-            new_attribute = np.zeros(len(dist_values[indice]), dtype=int)
-            for j in range(len(dist_values[indice])):
-                if dist_values[indice][j] == attribute:
-                    new_attribute[j] += 1
-            if First:
-                new_record = new_attribute
-                First = False
-            else:
-                new_record = np.concatenate((new_record, new_attribute), axis=0)
-            indice += 1
-        if First_rec:
-            new_data = np.array([new_record])
-            First_rec = False
-        else:
-            new_data = np.concatenate((new_data, np.array([new_record])), axis=0)
-    return new_data
+    printCSV([history1, history2, history3])
 
 
 def printPlots(history, save, name=None):
@@ -108,7 +77,8 @@ def printPlots(history, save, name=None):
     plt.legend(loc='upper right')
     plt.show()
     if save:
-        directory = "../Image/"
+        print("Saving image")
+        directory = "../../Image/MONK/"
         t = strftime("%H_%M")
         file = name + "_Acc_" + t + ".png"
         if not os.path.exists(directory):
@@ -121,7 +91,7 @@ def printPlots(history, save, name=None):
     plt.legend(loc='upper right')
     plt.show()
     if save:
-        directory = "../Image/"
+        directory = "../../Image/MONK/"
         t = strftime("%H_%M")
         file = name + "_Loss" + t + ".png"
         if not os.path.exists(directory):
@@ -140,7 +110,7 @@ def printCSV(monkS):
         results_records['Accuracy (TR/TS)'].append(
             '%.3f' % monkS[i].history['acc'][Models[i]['epochs'] - 1] + " / " + '%.3f' % monkS[i].history['val_acc'][
                 Models[i]['epochs'] - 1])
-    saveOnCSV(results_records, 'MonkS_')
+    saveOnCSV(results_records, 'Monk_results', 'MONK')
 
 
 def getModel(model):
