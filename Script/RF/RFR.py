@@ -9,10 +9,11 @@ CV = False
 GRID = False
 Plot = 'OLD'
 
-
-def rfr_model(x, y):  # Perform Grid-Search
+# According to the arguments, it will have different effects. See more on REadMe.dm
+def rfr_model(x, y):
 
     if GRID:
+        # Define grid and the list of the values for each hyperparameters
         gsc = GridSearchCV(
             estimator=RandomForestRegressor(criterion='mse'),
             param_grid={
@@ -25,6 +26,8 @@ def rfr_model(x, y):  # Perform Grid-Search
             cv=3, scoring=scoring, verbose=0, n_jobs=-1, refit=False)
 
         grid_result = gsc.fit(x, y)
+
+        # Print on CSV file the results of the grid search
         print_and_saveGrid(grid_result, True, False, 'grid_search_result_RFR', 'RFR')
 
         print(grid_result.cv_results_['mean_test_mee'])
@@ -36,6 +39,7 @@ def rfr_model(x, y):  # Perform Grid-Search
         print("CV")
         data = pd.read_csv(FIRST_GRID_RFR, sep=',', index_col=False)
 
+        # Select the best model, chosen in the previous grid search
         best_row = data[data.mee == data.mee.min()]
         max_depth = int(best_row.iloc[0]['max_depth'])
         n_estimators = int(best_row.iloc[0]['n_estimators'])
@@ -49,6 +53,7 @@ def rfr_model(x, y):  # Perform Grid-Search
         else:
             result = False
 
+        # Define the model
         rfr = RandomForestRegressor(max_depth=max_depth, n_estimators=n_estimators,
                                     min_samples_split=min_samples_split,
                                     max_features=max_features,
@@ -63,6 +68,8 @@ def rfr_model(x, y):  # Perform Grid-Search
         plt.title('LEARNING CURVE RFR')
         plt.xlabel("Training examples")
         plt.ylabel("MSE")
+
+        # Make a k-fold cross validation to plot a default learning curve
         train_sizes, train_scores, test_scores = learning_curve(
             rfr, x, y, cv=3, n_jobs=-1
             # , scoring=make_scorer(mean_euclidean_error)
