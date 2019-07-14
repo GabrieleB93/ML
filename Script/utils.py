@@ -15,6 +15,7 @@ from keras import regularizers
 
 # ---------------------- FROM AND TO CSV -------------------------------------------------------------------------------
 
+# Split the columns of the file to returns features and targets
 def getTrainData(data_path, DimX, DimY, sep):
     startX, endX = DimX.split(':')
     startY, endY = DimY.split(':')
@@ -26,6 +27,7 @@ def getTrainData(data_path, DimX, DimY, sep):
     return X, Y
 
 
+# Split the columns of the file to returns features of Blind set
 def getBlindData():
     data = pd.read_csv(BLIND_DATA, header=None, sep=',', comment='#')
     print(data.shape)
@@ -57,6 +59,7 @@ def saveResultsOnCSV(results_records, nameResult):
     file.close()
 
 
+# Split the an existing date set in 2 new ones, like split_new.py
 def split_development_set(validation_perc):
     data = pd.read_csv(CUP, header=None, comment='#')
 
@@ -117,6 +120,7 @@ def create_model(input_dim=10, output_dim=2, learn_rate=0.01, units=100, level=5
     return model
 
 
+# one - of - k encoding. From github
 def one_of_k(data):
     dist_values = np.array([np.unique(data[:, i]) for i in range(data.shape[1])])
     new_data = []
@@ -270,7 +274,6 @@ def print_and_saveGrid(grid_result, save=False, plot=False, nameResult=None, Typ
             results_records['validation_loss'].append(-meanTL)
             results_records['mee'].append(meanTM)
 
-    # To generalize
     if plot and save and Type != 'NN':
         plotGrid(pd.DataFrame(data=results_records), splitPlot, pivot1, pivot2, pivot3, excluded, Type)
     if save:
@@ -331,6 +334,7 @@ def train_and_plot_MLP(X_tr, Y_tr, X_val, Y_val, n_layers, n_units, learning_rat
 
 # ------------------------------------ UTILS FOR SVM -------------------------------------------------------------------
 
+# The function sorts the dataframe, takes the first two different values and create a list of elements in its range
 def getIntervalHyperP(dataFrame, hyperp):
     sorted = dataFrame.sort_values('mee')
 
@@ -349,6 +353,7 @@ def getIntervalHyperP(dataFrame, hyperp):
 
     print(tmp)
     return tmp
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
