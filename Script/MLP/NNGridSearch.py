@@ -6,8 +6,8 @@ from config import *
 
 # Variabili
 learn_rate = [0.0001, 0.001]
-units = [100, 500]
-level = [1, 3, 5]
+units = [10, 50, 100, 500]
+level = [1, 2, 3, 5]
 epochs = 5000
 
 def main():
