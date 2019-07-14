@@ -1,7 +1,7 @@
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-import category_encoders
-
+from sklearn.preprocessing import StandardScaler
 from utils import *
+
+# Best hyperparameter for Monk problems
 
 Model1 = {'layer': 1, 'hidden_units': 7, 'learning_rate': 0.6, 'momentum': 0.9, 'decay': 0,
           'epochs': 1000, 'activation': 'sigmoid', 'lamda': 0}
@@ -25,6 +25,7 @@ def main():
     XTS3, YTS3 = getTrainData(Monk3TS, '2:8', '1:2', ' ')
     XTR3, YTR3 = getTrainData(Monk3TR, '2:8', '1:2', ' ')
 
+    # Normalization of all datas
     scaler = StandardScaler()
 
     XTR3 = scaler.fit_transform(XTR3)
@@ -42,6 +43,7 @@ def main():
     Model2['batch'] = XTR2.shape[0]
     Model3['batch'] = XTR3.shape[0]
 
+    # Create the models
     model1 = create_model(XTR1.shape[1], YTR1.shape[1], Model1['learning_rate'], Model1['hidden_units'],
                           Model1['layer'], Model1['momentum'], Model1['decay'], Model1['activation'], Model1['lamda'])
     model2 = create_model(XTR2.shape[1], YTR2.shape[1], Model2['learning_rate'], Model2['hidden_units'],
@@ -49,6 +51,7 @@ def main():
     model3 = create_model(XTR3.shape[1], YTR3.shape[1], Model3['learning_rate'], Model3['hidden_units'],
                           Model3['layer'], Model3['decay'], Model3['lamda'])
 
+    #Fit and validate on Test set
     history1 = model1.fit(XTR1, YTR1, shuffle=True, epochs=Model1['epochs'], verbose=2, batch_size=Model1['batch'],
                           validation_data=[XTS1, YTS1])
 
