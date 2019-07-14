@@ -10,8 +10,9 @@ units = [10, 50, 100, 500]
 level = [1, 2, 3, 5]
 epochs = 5000
 
+
 def main():
-    X, Y = getTrainData(CUP,  '1:11', '11:13', ',')
+    X, Y = getTrainData(CUP, '1:11', '11:13', ',')
     scaler = StandardScaler()
     scaler.fit(X)
     X = scaler.transform(X)
@@ -26,7 +27,8 @@ def main():
     grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, refit=False, return_train_score=True, cv=3,
                         scoring=scoring)
 
-    print_and_saveGrid(grid.fit(X, Y), save=True, plot=False, nameResult='grid_search_result_MLP_086_100', Type='NN')
+    # Print on CSV file the results of the grid search
+    print_and_saveGrid(grid.fit(X, Y), save=True, plot=False, nameResult='grid_search_result_MLP', Type='NN')
 
 
 if __name__ == "__main__":
