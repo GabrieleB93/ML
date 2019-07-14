@@ -38,7 +38,7 @@ In the folder we can find the following scripts:
 * Script/Test.py = script for assessment and predict
 * Script/utils.py = a script containing all support functions.
 * Script/config.py = a support script that stores global variables like Path and Score function.
-* Script/split_data.py = a support script to generate the training and test set. If argument is 'new', it will generate a new training and validation set from the first training set.
+* Script/split_new.py = a support script to generate the training and test set. If argument is 'new', it will generate a new training and validation set from the first training set.
 
 ### MLP
 To make the grid search to study the behaviors on different architectures, we need to launch the script:
@@ -71,12 +71,10 @@ python3 SVM_newGridS.py -> DATA/SVR_POLY/grid_search_result_SVR_POLY2.csv and DA
 For these two models there are only two scripts, one for each one, and each of them need an argument to run:
 
 ```
-python3 RFR.py -i grid      -> DATA/RFR/grid_search_result_RFR.csv
-python3 ETR.py -i grid      -> DATA/ETR/grid_search_result_ETR.csv
-python3 RFR.py -i cv        -> evaluation
-python3 ETR.py -i cv        -> evaluation
-python3 RFR.py -i predict   -> DATA/Results/blind_RFR.csv
-python3 ETR.py -i predict   -> DATA/Results/blind_ETR.csv
+python3 RFR.py grid      -> DATA/RFR/grid_search_result_RFR.csv
+python3 ETR.py grid      -> DATA/ETR/grid_search_result_ETR.csv
+python3 RFR.py cv        -> evaluation
+python3 ETR.py cv        -> evaluation
 ```
 If the given argument is 'grid', it will be run a grid search and save the results on a CSV file.
 If the given argument is 'cv' and the CSV file with results exists, the best model it will be evaluated with a k-fold cross validation.
@@ -88,7 +86,7 @@ At least, for evaluate each model it's necessary to run the following script:
 ```
 python3 Test.py 
 ```
-It will produce the MEE error for the best NN model, the best SVM model and the best RF model. Instead, if you want to 
+It will produce the MEE error, and computing time, for the best NN model, the best SVM model and the best RF model. Instead, if you want to 
 predict the data for the ML CUP with the model that won the model selection, just add the argument 'predict' as follow:
 ```
 python3 Test.py predict
