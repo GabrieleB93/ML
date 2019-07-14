@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from utils import *
 from config import *
 
-
+# According to the arguments, it will have different effects. See more on REadMe.dm
 def main():
     if exists(FIRST_GRID_NN):
 
