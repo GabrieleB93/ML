@@ -16,6 +16,7 @@ def main():
         degree = int(data_POLY.sort_values('mee').iloc[0]['degree'])
         C_POLY = int(data_POLY.sort_values('mee').iloc[0]['C'])
 
+        # The function returns a list of 20 elements in the rang of the 2 best results
         C_range_RBF = getIntervalHyperP(data_RBF, 'C')
         gamma_range_RBF = getIntervalHyperP(data_RBF, 'gamma')
 
